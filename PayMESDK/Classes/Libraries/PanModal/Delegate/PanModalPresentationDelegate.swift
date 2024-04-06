@@ -6,42 +6,45 @@
 //
 
 #if os(iOS)
-import UIKit
+  import UIKit
 
-/**
- The PanModalPresentationDelegate conforms to the various transition delegates
- and vends the appropriate object for each transition controller requested.
- Usage:
- ```
- viewController.modalPresentationStyle = .custom
- viewController.transitioningDelegate = PanModalPresentationDelegate.default
- ```
- */
-public class PanModalPresentationDelegate: NSObject {
+  /// The PanModalPresentationDelegate conforms to the various transition delegates
+  /// and vends the appropriate object for each transition controller requested.
+  /// Usage:
+  /// ```
+  /// viewController.modalPresentationStyle = .custom
+  /// viewController.transitioningDelegate = PanModalPresentationDelegate.default
+  /// ```
+  public class PanModalPresentationDelegate: NSObject {
 
     /**
      Returns an instance of the delegate, retained for the duration of presentation
      */
     public static var `default`: PanModalPresentationDelegate = {
-        return PanModalPresentationDelegate()
+      return PanModalPresentationDelegate()
     }()
 
-}
+  }
 
-extension PanModalPresentationDelegate: UIViewControllerTransitioningDelegate {
+  extension PanModalPresentationDelegate: UIViewControllerTransitioningDelegate {
 
     /**
      Returns a modal presentation animator configured for the presenting state
      */
-    public func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return PanModalPresentationAnimator(transitionStyle: .presentation)
+    public func animationController(
+      forPresented presented: UIViewController, presenting: UIViewController,
+      source: UIViewController
+    ) -> UIViewControllerAnimatedTransitioning? {
+      return PanModalPresentationAnimator(transitionStyle: .presentation)
     }
 
     /**
      Returns a modal presentation animator configured for the dismissing state
      */
-    public func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return PanModalPresentationAnimator(transitionStyle: .dismissal)
+    public func animationController(forDismissed dismissed: UIViewController)
+      -> UIViewControllerAnimatedTransitioning?
+    {
+      return PanModalPresentationAnimator(transitionStyle: .dismissal)
     }
 
     /**
@@ -49,15 +52,21 @@ extension PanModalPresentationDelegate: UIViewControllerTransitioningDelegate {
      view controller to the presented view controller.
      Changes in size class during presentation are handled via the adaptive presentation delegate
      */
-    public func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
-        let controller = PanModalPresentationController(presentedViewController: presented, presenting: presenting)
-        controller.delegate = self
-        return controller
+    public func presentationController(
+      forPresented presented: UIViewController, presenting: UIViewController?,
+      source: UIViewController
+    ) -> UIPresentationController? {
+      let controller = PanModalPresentationController(
+        presentedViewController: presented, presenting: presenting)
+      controller.delegate = self
+      return controller
     }
 
-}
+  }
 
-extension PanModalPresentationDelegate: UIAdaptivePresentationControllerDelegate, UIPopoverPresentationControllerDelegate {
+  extension PanModalPresentationDelegate: UIAdaptivePresentationControllerDelegate,
+    UIPopoverPresentationControllerDelegate
+  {
 
     /**
      - Note: We do not adapt to size classes due to the introduction of the UIPresentationController
@@ -70,9 +79,11 @@ extension PanModalPresentationDelegate: UIAdaptivePresentationControllerDelegate
     /**
      Dismisses the presented view controller
      */
-    public func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
-        return .none
+    public func adaptivePresentationStyle(
+      for controller: UIPresentationController, traitCollection: UITraitCollection
+    ) -> UIModalPresentationStyle {
+      return .none
     }
 
-}
+  }
 #endif

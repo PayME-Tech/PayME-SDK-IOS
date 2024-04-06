@@ -6,39 +6,45 @@
 //
 
 import Foundation
-import UIKit
 import PayCardsRecognizer
+import UIKit
 
-class PayCardsModules : UIViewController, PayCardsRecognizerPlatformDelegate {
+class PayCardsModules: UIViewController, PayCardsRecognizerPlatformDelegate {
   var delegate: PayCardsModulesDelegate?
 
-  func payCardsRecognizer(_ payCardsRecognizer: PayCardsRecognizer, didRecognize result: PayCardsRecognizerResult) {
+  func payCardsRecognizer(
+    _ payCardsRecognizer: PayCardsRecognizer, didRecognize result: PayCardsRecognizerResult
+  ) {
     if !flag {
       flag = true
       print("DEBUG_CARDD")
       print([
         "cardNumber": result.recognizedNumber ?? "",
         "cardHolder": result.recognizedHolderName ?? "",
-        "cardExpitedDate": "\(result.recognizedExpireDateMonth ?? "")/\(result.recognizedExpireDateYear ?? "")"
+        "cardExpitedDate":
+          "\(result.recognizedExpireDateMonth ?? "")/\(result.recognizedExpireDateYear ?? "")",
       ])
       delegate?.onCloseModule(self)
       dismiss(animated: true) {
         self.onSuccess([
           "cardNumber": result.recognizedNumber ?? "",
           "cardHolder": result.recognizedHolderName ?? "",
-          "cardExpitedDate": "\(result.recognizedExpireDateMonth ?? "")/\(result.recognizedExpireDateYear ?? "")"
+          "cardExpitedDate":
+            "\(result.recognizedExpireDateMonth ?? "")/\(result.recognizedExpireDateYear ?? "")",
         ])
       }
     }
   }
 
   var recognizer: PayCardsRecognizer!
-  var onSuccess: ([String : String]) -> ()
-  var onFailed: ([String : String]) -> ()
+  var onSuccess: ([String: String]) -> Void
+  var onFailed: ([String: String]) -> Void
   var flag = false
 
-  init(onSuccess: @escaping ([String : String]) -> (),
-       onFailed: @escaping ([String : String]) -> ()) {
+  init(
+    onSuccess: @escaping ([String: String]) -> Void,
+    onFailed: @escaping ([String: String]) -> Void
+  ) {
     self.onSuccess = onSuccess
     self.onFailed = onFailed
     super.init(nibName: nil, bundle: nil)
@@ -53,12 +59,15 @@ class PayCardsModules : UIViewController, PayCardsRecognizerPlatformDelegate {
     view.backgroundColor = .black
     view.addSubview(backButton)
     view.addSubview(cameraView)
-    recognizer = PayCardsRecognizer(delegate: self, resultMode: .async, container: cameraView, frameColor: .green)
+    recognizer = PayCardsRecognizer(
+      delegate: self, resultMode: .async, container: cameraView, frameColor: .green)
     if #available(iOS 11, *) {
       let guide = view.safeAreaLayoutGuide
-      backButton.topAnchor.constraint(equalToSystemSpacingBelow: guide.topAnchor, multiplier: 1.0).isActive = true
+      backButton.topAnchor.constraint(equalToSystemSpacingBelow: guide.topAnchor, multiplier: 1.0)
+        .isActive = true
     } else {
-      backButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 8).isActive = true
+      backButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 8).isActive =
+        true
     }
     backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
     backButton.heightAnchor.constraint(equalToConstant: 32).isActive = true
@@ -78,7 +87,7 @@ class PayCardsModules : UIViewController, PayCardsRecognizerPlatformDelegate {
   @objc func back() {
     recognizer.stopCamera()
     delegate?.onCloseModule(self)
-//    vc.dismiss(animated: true)
+    //    vc.dismiss(animated: true)
   }
 
   override func viewWillDisappear(_ animated: Bool) {

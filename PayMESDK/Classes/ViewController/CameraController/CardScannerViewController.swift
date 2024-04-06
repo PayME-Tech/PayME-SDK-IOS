@@ -5,9 +5,9 @@
 //  Created by Nam Phan Thanh on 24/03/2022.
 //
 
+import AVFoundation
 import Foundation
 import UIKit
-import AVFoundation
 
 class CardScannerViewController: PayCardsModulesDelegate {
   var currentVC: UIViewController
@@ -20,7 +20,9 @@ class CardScannerViewController: PayCardsModulesDelegate {
     currentVC.dismiss(animated: true)
   }
 
-  func startScanner(onSuccess: @escaping ([String: String]) -> (), onFailed: @escaping ([String: String]) -> ()) {
+  func startScanner(
+    onSuccess: @escaping ([String: String]) -> Void, onFailed: @escaping ([String: String]) -> Void
+  ) {
     var hasPermission = false
     let semaphore = DispatchSemaphore(value: 0)
     AVCaptureDevice.requestAccess(for: .video) { success in
@@ -28,7 +30,8 @@ class CardScannerViewController: PayCardsModulesDelegate {
         DispatchQueue.main.async {
           let authStatus = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
           if authStatus == AVAuthorizationStatus.denied {
-            let newNav = UINavigationController(rootViewController: PermissionCamera(modalVC: self.currentVC))
+            let newNav = UINavigationController(
+              rootViewController: PermissionCamera(modalVC: self.currentVC))
             newNav.setNavigationBarHidden(true, animated: true)
             self.currentVC.present(newNav, animated: true)
           }
@@ -52,6 +55,5 @@ class CardScannerViewController: PayCardsModulesDelegate {
       currentVC.presentModal(payCardController)
     }
   }
-
 
 }

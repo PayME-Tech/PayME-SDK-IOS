@@ -6,38 +6,40 @@
 //
 
 import Foundation
-import UIKit
 import Lottie
+import UIKit
 
-class LoadingKYC : UIViewController {
-    let animationView = AnimationView()
+class LoadingKYC: UIViewController {
+  let animationView = LottieAnimationView()
 
-    override func viewDidLoad() {
-        view.backgroundColor = UIColor(hexString: PayME.configColor[1])
-        
-        let bundle = Bundle(for: LoadingKYC.self)
-        let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
-        let resourceBundle = Bundle(url: bundleURL!)
-        let animation = Animation.named("Proccessing_Upload", bundle: resourceBundle!)
-        animationView.animation = animation
+  override func viewDidLoad() {
+    view.backgroundColor = UIColor(hexString: PayME.configColor[1])
 
-        view.addSubview(animationView)
-        animationView.translatesAutoresizingMaskIntoConstraints = false
-        animationView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height).isActive = true
-        animationView.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
+    let bundle = Bundle(for: LoadingKYC.self)
+    let bundleURL = bundle.resourceURL?.appendingPathComponent("PayMESDK.bundle")
+    let resourceBundle = Bundle(url: bundleURL!)
+    let animation = LottieAnimation.named("Proccessing_Upload", bundle: resourceBundle!)
+    animationView.animation = animation
 
-        let color = ColorValueProvider(UIColor(hexString: PayME.configColor[0]).lottieColorValue)
-        let keyPath = AnimationKeypath(keypath: "Proccessing_Upload.Pre-comp 1.Bg.**.Color")
-        let keyPath1 = AnimationKeypath(keypath: "Proccessing_Upload.Pre-comp 1.Shadow.**.Color")
-        let keyPath2 = AnimationKeypath(keypath: "Proccessing_Upload.Pre-comp 1.Muiten.**.Color")
-        animationView.setValueProvider(color, keypath: keyPath)
-        animationView.setValueProvider(color, keypath: keyPath1)
-        animationView.setValueProvider(color, keypath: keyPath2)
+    view.addSubview(animationView)
+    animationView.translatesAutoresizingMaskIntoConstraints = false
+    animationView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height).isActive =
+      true
+    animationView.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive =
+      true
 
-        animationView.contentMode = .scaleAspectFit
-        animationView.loopMode = .loop
-        animationView.play()
+    let color = ColorValueProvider(UIColor(hexString: PayME.configColor[0]).lottieColorValue)
+    let keyPath = AnimationKeypath(keypath: "Proccessing_Upload.Pre-comp 1.Bg.**.Color")
+    let keyPath1 = AnimationKeypath(keypath: "Proccessing_Upload.Pre-comp 1.Shadow.**.Color")
+    let keyPath2 = AnimationKeypath(keypath: "Proccessing_Upload.Pre-comp 1.Muiten.**.Color")
+    animationView.setValueProvider(color, keypath: keyPath)
+    animationView.setValueProvider(color, keypath: keyPath1)
+    animationView.setValueProvider(color, keypath: keyPath2)
 
-        super.viewDidLoad()
-    }
+    animationView.contentMode = .scaleAspectFit
+    animationView.loopMode = .loop
+    animationView.play()
+
+    super.viewDidLoad()
+  }
 }

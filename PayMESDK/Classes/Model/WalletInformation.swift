@@ -1,9 +1,9 @@
 import Foundation
 
 class WalletInformation {
-    var balance: Int?
+  var balance: Int?
 
-    init(balance: Int?) {
-        self.balance = balance
-    }
+  init(balance: Int?) {
+    self.balance = balance
+  }
 }

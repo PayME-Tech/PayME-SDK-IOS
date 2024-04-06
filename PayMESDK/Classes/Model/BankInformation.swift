@@ -8,43 +8,49 @@
 import Foundation
 
 class BankInformation {
-    var cardNumber: String = ""
-    var cardHolder: String = ""
-    var issueDate: String = ""
-    var bank: Bank?
+  var cardNumber: String = ""
+  var cardHolder: String = ""
+  var issueDate: String = ""
+  var bank: Bank?
 
-    init(cardNumber: String = "", cardHolder: String = "", issueDate: String = "", bank: Bank? = nil) {
-        self.cardNumber = cardNumber
-        self.cardHolder = cardHolder
-        self.issueDate = issueDate
-        self.bank = bank
-    }
+  init(cardNumber: String = "", cardHolder: String = "", issueDate: String = "", bank: Bank? = nil)
+  {
+    self.cardNumber = cardNumber
+    self.cardHolder = cardHolder
+    self.issueDate = issueDate
+    self.bank = bank
+  }
 
-    func cardNumberFormatted() -> String {
-        let tempCard = cardNumber.filter("0123456789".contains)
-        if (bank?.cardNumberLength == 16) {
-            return String(tempCard.enumerated().map { $0 > 0 && $0 % 4 == 0 ? ["-", $1] : [$1] }.joined())
-        }
-        if (bank?.cardNumberLength == 19) {
-            return String(tempCard.enumerated().map { $0 > 0 && $0 % 8 == 0 ? ["-", $1] : [$1] }.joined())
-        }
-        return cardNumber
+  func cardNumberFormatted() -> String {
+    let tempCard = cardNumber.filter("0123456789".contains)
+    if bank?.cardNumberLength == 16 {
+      return String(
+        tempCard.enumerated().map { $0 > 0 && $0 % 4 == 0 ? ["-", $1] : [$1] }.joined())
     }
+    if bank?.cardNumberLength == 19 {
+      return String(
+        tempCard.enumerated().map { $0 > 0 && $0 % 8 == 0 ? ["-", $1] : [$1] }.joined())
+    }
+    return cardNumber
+  }
 }
 
 class CreditCardInfomation {
-    var cardNumber: String = ""
-    var cardHolder: String = ""
-    var expiredAt: String = ""
-    var cvv: String = ""
-    var issuer: String = ""
-    var referenceId: String = ""
+  var cardNumber: String = ""
+  var cardHolder: String = ""
+  var expiredAt: String = ""
+  var cvv: String = ""
+  var issuer: String = ""
+  var referenceId: String = ""
 
-    init(cardNumber: String = "", cardHolder: String, expiredAt: String = "", cvv: String = "", issuer: String = "") {
-        self.cardNumber = cardNumber
-        self.cardHolder = cardHolder
-        self.expiredAt = expiredAt
-        self.cvv = cvv
-        self.issuer = issuer
-    }
+  init(
+    cardNumber: String = "", cardHolder: String, expiredAt: String = "", cvv: String = "",
+    issuer: String = ""
+  ) {
+    self.cardNumber = cardNumber
+    self.cardHolder = cardHolder
+    self.expiredAt = expiredAt
+    self.cvv = cvv
+    self.issuer = issuer
+  }
 }

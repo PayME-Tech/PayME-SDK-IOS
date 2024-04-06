@@ -6,20 +6,18 @@
 //
 
 #if os(iOS)
-import UIKit
+  import UIKit
 
-/**
- ⚠️ [Internal Only] ⚠️
- Helper extensions that handle layout in the PanModalPresentationController
- */
-extension PanModalPresentable where Self: UIViewController {
+  /// ⚠️ [Internal Only] ⚠️
+  /// Helper extensions that handle layout in the PanModalPresentationController
+  extension PanModalPresentable where Self: UIViewController {
 
     /**
      Cast the presentation controller to PanModalPresentationController
      so we can access PanModalPresentationController properties and methods
      */
     var presentedVC: PanModalPresentationController? {
-        return presentationController as? PanModalPresentationController
+      return presentationController as? PanModalPresentationController
     }
 
     /**
@@ -28,10 +26,14 @@ extension PanModalPresentable where Self: UIViewController {
      */
     var topLayoutOffset: CGFloat {
 
-        guard let rootVC = rootViewController
-            else { return 0}
+      guard let rootVC = rootViewController
+      else { return 0 }
 
-        if #available(iOS 11.0, *) { return rootVC.view.safeAreaInsets.top } else { return rootVC.topLayoutGuide.length }
+      if #available(iOS 11.0, *) {
+        return rootVC.view.safeAreaInsets.top
+      } else {
+        return rootVC.topLayoutGuide.length
+      }
     }
 
     /**
@@ -40,10 +42,14 @@ extension PanModalPresentable where Self: UIViewController {
      */
     var bottomLayoutOffset: CGFloat {
 
-       guard let rootVC = rootViewController
-            else { return 0}
+      guard let rootVC = rootViewController
+      else { return 0 }
 
-        if #available(iOS 11.0, *) { return rootVC.view.safeAreaInsets.bottom } else { return rootVC.bottomLayoutGuide.length }
+      if #available(iOS 11.0, *) {
+        return rootVC.view.safeAreaInsets.bottom
+      } else {
+        return rootVC.bottomLayoutGuide.length
+      }
     }
 
     /**
@@ -53,13 +59,13 @@ extension PanModalPresentable where Self: UIViewController {
      */
     var shortFormYPos: CGFloat {
 
-        guard !UIAccessibility.isVoiceOverRunning
-            else { return longFormYPos }
+      guard !UIAccessibility.isVoiceOverRunning
+      else { return longFormYPos }
 
-        let shortFormYPos = topMargin(from: shortFormHeight) + topOffset
+      let shortFormYPos = topMargin(from: shortFormHeight) + topOffset
 
-        // shortForm shouldn't exceed longForm
-        return max(shortFormYPos, longFormYPos)
+      // shortForm shouldn't exceed longForm
+      return max(shortFormYPos, longFormYPos)
     }
 
     /**
@@ -68,7 +74,7 @@ extension PanModalPresentable where Self: UIViewController {
      to ensure content is not rendered outside of the view bounds
      */
     var longFormYPos: CGFloat {
-        return max(topMargin(from: longFormHeight), topMargin(from: .maxHeight)) + topOffset
+      return max(topMargin(from: longFormHeight), topMargin(from: .maxHeight)) + topOffset
     }
 
     /**
@@ -77,10 +83,10 @@ extension PanModalPresentable where Self: UIViewController {
      */
     var bottomYPos: CGFloat {
 
-        guard let container = presentedVC?.containerView
-            else { return view.bounds.height }
+      guard let container = presentedVC?.containerView
+      else { return view.bounds.height }
 
-        return container.bounds.size.height - topOffset
+      return container.bounds.size.height - topOffset
     }
 
     /**
@@ -88,31 +94,34 @@ extension PanModalPresentable where Self: UIViewController {
      calculated from top of view
      */
     func topMargin(from: PanModalHeight) -> CGFloat {
-        switch from {
-        case .maxHeight:
-            return 0.0
-        case .maxHeightWithTopInset(let inset):
-            return inset
-        case .contentHeight(let height):
-            return bottomYPos - (height + bottomLayoutOffset)
-        case .contentHeightIgnoringSafeArea(let height):
-            return bottomYPos - height
-        case .intrinsicHeight:
-            view.layoutIfNeeded()
-            let targetSize = CGSize(width: (presentedVC?.containerView?.bounds ?? UIScreen.main.bounds).width,
-                                    height: UIView.layoutFittingCompressedSize.height)
-            let intrinsicHeight = view.systemLayoutSizeFitting(targetSize).height
-            return bottomYPos - (intrinsicHeight + bottomLayoutOffset)
-        }
+      switch from {
+      case .maxHeight:
+        return 0.0
+      case .maxHeightWithTopInset(let inset):
+        return inset
+      case .contentHeight(let height):
+        return bottomYPos - (height + bottomLayoutOffset)
+      case .contentHeightIgnoringSafeArea(let height):
+        return bottomYPos - height
+      case .intrinsicHeight:
+        view.layoutIfNeeded()
+        let targetSize = CGSize(
+          width: (presentedVC?.containerView?.bounds ?? UIScreen.main.bounds).width,
+          height: UIView.layoutFittingCompressedSize.height)
+        let intrinsicHeight = view.systemLayoutSizeFitting(targetSize).height
+        return bottomYPos - (intrinsicHeight + bottomLayoutOffset)
+      }
     }
 
     private var rootViewController: UIViewController? {
 
-        guard let application = UIApplication.value(forKeyPath: #keyPath(UIApplication.shared)) as? UIApplication
-            else { return nil }
+      guard
+        let application = UIApplication.value(forKeyPath: #keyPath(UIApplication.shared))
+          as? UIApplication
+      else { return nil }
 
-        return application.keyWindow?.rootViewController
+      return application.keyWindow?.rootViewController
     }
 
-}
+  }
 #endif

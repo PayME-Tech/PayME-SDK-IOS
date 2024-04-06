@@ -13,7 +13,7 @@ class MethodView: UIView {
   var buttonTitle: String?
   var note: String?
   var methodDescription: String?
-  var onPress: (() -> ())?
+  var onPress: (() -> Void)?
   var isSelectable = true
 
   let vStack: UIStackView = {
@@ -100,15 +100,15 @@ class MethodView: UIView {
     return stack
   }()
 
-//    let methodDescriptionLabel: UILabel = {
-//        let label = UILabel()
-//        label.textColor = UIColor(100, 112, 129)
-//        label.backgroundColor = .clear
-//        label.font = .systemFont(ofSize: 11, weight: .regular)
-//        label.translatesAutoresizingMaskIntoConstraints = false
-//        label.textAlignment = .left
-//        return label
-//    }()
+  //    let methodDescriptionLabel: UILabel = {
+  //        let label = UILabel()
+  //        label.textColor = UIColor(100, 112, 129)
+  //        label.backgroundColor = .clear
+  //        label.font = .systemFont(ofSize: 11, weight: .regular)
+  //        label.translatesAutoresizingMaskIntoConstraints = false
+  //        label.textAlignment = .left
+  //        return label
+  //    }()
 
   let infoHStack: UIStackView = {
     let stack = UIStackView()
@@ -118,9 +118,11 @@ class MethodView: UIView {
     return stack
   }()
 
-  init(title: String = "", content: String? = nil, buttonTitle: String? = nil, note: String? = nil, methodDescription: String? = nil,
-       isSelectable: Bool = true)
-  {
+  init(
+    title: String = "", content: String? = nil, buttonTitle: String? = nil, note: String? = nil,
+    methodDescription: String? = nil,
+    isSelectable: Bool = true
+  ) {
     self.title = title
     self.content = content ?? nil
     self.buttonTitle = buttonTitle ?? nil
@@ -190,7 +192,7 @@ class MethodView: UIView {
     titleLabel.text = title
     contentLabel.text = content ?? ""
     noteLabel.text = note ?? ""
-//        methodDescriptionLabel.text = methodDescription ?? ""
+    //        methodDescriptionLabel.text = methodDescription ?? ""
     if isOpenWallet == true {
       button.layer.borderWidth = 1
     } else {
@@ -214,11 +216,11 @@ class MethodView: UIView {
       noteLabel.isHidden = true
     }
 
-//        if (methodDescription != nil && methodDescription != "") {
-//            methodDescriptionLabel.isHidden = false
-//        } else {
-//            methodDescriptionLabel.isHidden = true
-//        }
+    //        if (methodDescription != nil && methodDescription != "") {
+    //            methodDescriptionLabel.isHidden = false
+    //        } else {
+    //            methodDescriptionLabel.isHidden = true
+    //        }
   }
 
   func updateSelectState(isSelected: Bool = false) {

@@ -1,6 +1,6 @@
-import UIKit
 import Lottie
 import RxSwift
+import UIKit
 
 class ConfirmationModal: UIViewController {
   let screenSize: CGRect = UIScreen.main.bounds
@@ -9,8 +9,8 @@ class ConfirmationModal: UIViewController {
   var listBank: [Bank] = []
   var bankDetect: Bank?
   var issuerCreditDetect: String?
-  var onError: (([String: AnyObject]) -> ())? = nil
-  var onSuccess: (([String: AnyObject]) -> ())? = nil
+  var onError: (([String: AnyObject]) -> Void)? = nil
+  var onSuccess: (([String: AnyObject]) -> Void)? = nil
   var result = false
   let payMEFunction: PayMEFunction
   let orderTransaction: OrderTransaction
@@ -21,11 +21,15 @@ class ConfirmationModal: UIViewController {
   var payActionByMethod = {}
   let orderView: OrderView
 
-  private var scannedCard: [String:String]? = nil
+  private var scannedCard: [String: String]? = nil
   private var cardWithoutSpace: String = ""
 
-  init(payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, isShowResult: Bool, paymentPresentation: PaymentPresentation,
-       onSuccess: (([String: AnyObject]) -> ())? = nil, onError: (([String: AnyObject]) -> ())? = nil) {
+  init(
+    payMEFunction: PayMEFunction, orderTransaction: OrderTransaction, isShowResult: Bool,
+    paymentPresentation: PaymentPresentation,
+    onSuccess: (([String: AnyObject]) -> Void)? = nil,
+    onError: (([String: AnyObject]) -> Void)? = nil
+  ) {
     self.payMEFunction = payMEFunction
     self.onSuccess = onSuccess
     self.onError = onError
@@ -33,12 +37,14 @@ class ConfirmationModal: UIViewController {
     self.paymentPresentation = paymentPresentation
     isShowResultUI = isShowResult
     if orderTransaction.isShowHeader {
-      orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
+      orderView = OrderView(
+        amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
         serviceCode: self.orderTransaction.orderId,
         note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
         logoUrl: self.orderTransaction.storeImage, isFullInfo: true)
     } else {
-      orderView = OrderView(amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
+      orderView = OrderView(
+        amount: self.orderTransaction.amount, storeName: self.orderTransaction.storeName,
         serviceCode: self.orderTransaction.orderId,
         note: orderTransaction.note == "" ? "noContent".localize() : self.orderTransaction.note,
         logoUrl: nil, isFullInfo: false)
@@ -60,7 +66,7 @@ class ConfirmationModal: UIViewController {
     view.addSubview(scrollView)
     scrollView.addSubview(orderView)
     scrollView.addSubview(atmView)
-//        atmView.translatesAutoresizingMaskIntoConstraints = false
+    //        atmView.translatesAutoresizingMaskIntoConstraints = false
 
     scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
     scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -70,12 +76,12 @@ class ConfirmationModal: UIViewController {
     orderView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
     orderView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
     orderView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-//        orderView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
+    //        orderView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
 
     atmView.topAnchor.constraint(equalTo: orderView.bottomAnchor).isActive = true
     atmView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
     atmView.widthAnchor.constraint(equalToConstant: screenSize.width).isActive = true
-//        atmView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
+    //        atmView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
 
     atmView.cardInput.textInput.delegate = self
     atmView.dateInput.textInput.delegate = self
@@ -85,26 +91,38 @@ class ConfirmationModal: UIViewController {
     atmView.button.addTarget(self, action: #selector(payAction), for: .touchUpInside)
     atmView.methodView.onPress = {}
     atmView.contentView.onPressSearch = {
-      self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_SEARCH, orderTransaction: self.orderTransaction))
+      self.payMEFunction.paymentViewModel.paymentSubject.onNext(
+        PaymentState(state: .BANK_SEARCH, orderTransaction: self.orderTransaction))
     }
     atmView.contentView.onPressOpenVietQRBanks = {
-      self.payMEFunction.paymentViewModel.paymentSubject.onNext(PaymentState(state: .BANK_VIETQR, banks: self.listBank, orderTransaction: self.orderTransaction))
+      self.payMEFunction.paymentViewModel.paymentSubject.onNext(
+        PaymentState(
+          state: .BANK_VIETQR, banks: self.listBank, orderTransaction: self.orderTransaction))
     }
 
     if #available(iOS 13.0, *) {
-      NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIScene.willDeactivateNotification, object: nil)
+      NotificationCenter.default.addObserver(
+        self, selector: #selector(onAppEnterBackground), name: UIScene.willDeactivateNotification,
+        object: nil)
     } else {
-      NotificationCenter.default.addObserver(self, selector: #selector(onAppEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
+      NotificationCenter.default.addObserver(
+        self, selector: #selector(onAppEnterBackground),
+        name: UIApplication.willResignActiveNotification, object: nil)
     }
 
-    atmView.cardInput.textInput.addTarget(self, action: #selector(reformatAsCardNumber), for: .editingChanged)
+    atmView.cardInput.textInput.addTarget(
+      self, action: #selector(reformatAsCardNumber), for: .editingChanged)
   }
 
   override func viewDidLayoutSubviews() {
     let primaryColor = payMEFunction.configColor[0]
-    let secondaryColor = payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
+    let secondaryColor =
+      payMEFunction.configColor.count > 1 ? payMEFunction.configColor[1] : primaryColor
 
-    orderView.applyGradient(colors: [UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor], radius: 0)
+    orderView.applyGradient(
+      colors: [
+        UIColor(hexString: primaryColor).cgColor, UIColor(hexString: secondaryColor).cgColor,
+      ], radius: 0)
   }
 
   @objc func closeAction() {
@@ -112,15 +130,15 @@ class ConfirmationModal: UIViewController {
   }
 
   @objc func payAction() {
-    if (orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue) {
+    if orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue {
       payATM()
       return
     }
-    if (orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue) {
+    if orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
       payCreditCard()
       return
     }
-    if (orderTransaction.paymentMethod?.type == MethodType.BANK_TRANSFER.rawValue) {
+    if orderTransaction.paymentMethod?.type == MethodType.BANK_TRANSFER.rawValue {
       paymentPresentation.payBankTransfer(orderTransaction: orderTransaction)
       return
     }
@@ -134,8 +152,9 @@ class ConfirmationModal: UIViewController {
     let cvv = atmView.cvvInput.textInput.text
     let cardNumberLenght = cardNumber?.count ?? 0
     if cardNumber == nil
-         || (issuerCreditDetect == "VISA" && cardNumberLenght != 13 && cardNumberLenght != 16)
-         || (issuerCreditDetect != "VISA" && cardNumberLenght != 16) {
+      || (issuerCreditDetect == "VISA" && cardNumberLenght != 13 && cardNumberLenght != 16)
+      || (issuerCreditDetect != "VISA" && cardNumberLenght != 16)
+    {
       atmView.cardInput.errorMessage = "wrongCardNumberContent".localize()
       atmView.cardInput.updateState(state: .error)
       return
@@ -147,14 +166,15 @@ class ConfirmationModal: UIViewController {
       return
     }
     if (expiredAt?.count ?? 0) != 5 {
-      atmView.dateInput.errorMessage = "emptyDateCardContent".localize() + "expiredDate".localize().lowercased()
+      atmView.dateInput.errorMessage =
+        "emptyDateCardContent".localize() + "expiredDate".localize().lowercased()
       atmView.dateInput.updateState(state: .error)
       return
     }
     let dateArr = expiredAt!.components(separatedBy: "/")
     let month = Int(dateArr[0]) ?? 0
     let year = Int(dateArr[1]) ?? 0
-    if (month == 0 || year == 0 || month > 12 || month <= 0) {
+    if month == 0 || year == 0 || month > 12 || month <= 0 {
       atmView.dateInput.errorMessage = "wrongExpiredDateCardContent".localize()
       atmView.dateInput.updateState(state: .error)
       return
@@ -164,7 +184,8 @@ class ConfirmationModal: UIViewController {
       atmView.cvvInput.updateState(state: .error)
       return
     }
-    orderTransaction.paymentMethod?.dataCreditCard = CreditCardInfomation(cardNumber: cardNumber!, cardHolder: cardHolder!, expiredAt: expiredAt!, cvv: cvv!,
+    orderTransaction.paymentMethod?.dataCreditCard = CreditCardInfomation(
+      cardNumber: cardNumber!, cardHolder: cardHolder!, expiredAt: expiredAt!, cvv: cvv!,
       issuer: issuerCreditDetect ?? "")
     showSpinner(onView: view)
     view.endEditing(true)
@@ -185,21 +206,23 @@ class ConfirmationModal: UIViewController {
       atmView.nameInput.updateState(state: .error)
       return
     }
-    if (issuedAt!.count != 5) {
-      atmView.dateInput.errorMessage = "emptyDateCardContent".localize() + bankDetect!.requiredDateString.lowercased()
+    if issuedAt!.count != 5 {
+      atmView.dateInput.errorMessage =
+        "emptyDateCardContent".localize() + bankDetect!.requiredDateString.lowercased()
       atmView.dateInput.updateState(state: .error)
       return
     } else {
       let dateArr = issuedAt!.components(separatedBy: "/")
       let month = Int(dateArr[0]) ?? 0
       let year = Int(dateArr[1]) ?? 0
-      if (month == 0 || year == 0 || month > 12 || month <= 0) {
+      if month == 0 || year == 0 || month > 12 || month <= 0 {
         atmView.dateInput.errorMessage = "wrongReleaseDateCardContent".localize()
         atmView.dateInput.updateState(state: .error)
         return
       }
       let date = "20" + dateArr[1] + "-" + dateArr[0] + "-01T00:00:00.000Z"
-      orderTransaction.paymentMethod?.dataBank = BankInformation(cardNumber: cardNumber!, cardHolder: cardHolder!, issueDate: date, bank: bankDetect)
+      orderTransaction.paymentMethod?.dataBank = BankInformation(
+        cardNumber: cardNumber!, cardHolder: cardHolder!, issueDate: date, bank: bankDetect)
       showSpinner(onView: view)
       view.endEditing(true)
       paymentPresentation.payATM(orderTransaction: orderTransaction)
@@ -207,11 +230,12 @@ class ConfirmationModal: UIViewController {
   }
 
   @objc func onAppEnterBackground(notification: NSNotification) {
-//        view.endEditing(false)
+    //        view.endEditing(false)
   }
 
   func toastMessError(title: String, message: String) {
-    let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
+    let alert = UIAlertController(
+      title: title, message: message, preferredStyle: UIAlertController.Style.alert)
     alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
     present(alert, animated: true, completion: nil)
   }
@@ -230,11 +254,13 @@ class ConfirmationModal: UIViewController {
   @objc func reformatAsCardNumber(textField: UITextField) {
     var targetCursorPosition = 0
     if let startPosition = textField.selectedTextRange?.start {
-      targetCursorPosition = textField.offset(from: textField.beginningOfDocument, to: startPosition)
+      targetCursorPosition = textField.offset(
+        from: textField.beginningOfDocument, to: startPosition)
     }
     var cardNumberWithoutSpaces = ""
     if let text = textField.text {
-      cardNumberWithoutSpaces = removeNonDigits(string: text, andPreserveCursorPosition: &targetCursorPosition)
+      cardNumberWithoutSpaces = removeNonDigits(
+        string: text, andPreserveCursorPosition: &targetCursorPosition)
     }
     if orderTransaction.paymentMethod?.type == MethodType.BANK_CARD.rawValue {
       if cardNumberWithoutSpaces.count > bankDetect?.cardNumberLength ?? 19 {
@@ -255,14 +281,19 @@ class ConfirmationModal: UIViewController {
       }
     }
 
-    textField.text = insertCreditCardSpaces(cardNumberWithoutSpaces, preserveCursorPosition: &targetCursorPosition)
+    textField.text = insertCreditCardSpaces(
+      cardNumberWithoutSpaces, preserveCursorPosition: &targetCursorPosition)
 
-    if let targetPosition = textField.position(from: textField.beginningOfDocument, offset: targetCursorPosition) {
+    if let targetPosition = textField.position(
+      from: textField.beginningOfDocument, offset: targetCursorPosition)
+    {
       textField.selectedTextRange = textField.textRange(from: targetPosition, to: targetPosition)
     }
   }
 
-  func removeNonDigits(string: String, andPreserveCursorPosition cursorPosition: inout Int) -> String {
+  func removeNonDigits(string: String, andPreserveCursorPosition cursorPosition: inout Int)
+    -> String
+  {
     var digitsOnlyString = ""
     let originalCursorPosition = cursorPosition
     for i in Swift.stride(from: 0, to: string.count, by: 1) {
@@ -276,15 +307,18 @@ class ConfirmationModal: UIViewController {
     return digitsOnlyString
   }
 
-  func insertCreditCardSpaces(_ string: String, preserveCursorPosition cursorPosition: inout Int) -> String {
-    var is883, is4444: Bool
-//        if bankDetect != nil {
-//            is883 = bankDetect?.cardNumberLength == 19 ? true : false
-//            is4444 = bankDetect?.cardNumberLength == 16 ? true : false
-//        } else {
-//            is4444 = true
-//            is883 = false
-//        }
+  func insertCreditCardSpaces(_ string: String, preserveCursorPosition cursorPosition: inout Int)
+    -> String
+  {
+    var is883: Bool
+    var is4444: Bool
+    //        if bankDetect != nil {
+    //            is883 = bankDetect?.cardNumberLength == 19 ? true : false
+    //            is4444 = bankDetect?.cardNumberLength == 16 ? true : false
+    //        } else {
+    //            is4444 = true
+    //            is883 = false
+    //        }
     if string.count > 16 {
       is4444 = false
       is883 = true
@@ -316,15 +350,19 @@ class ConfirmationModal: UIViewController {
       if issuerCreditDetect == nil {
         let patterns = [
           "VISA": ["4"],
-          "MASTERCARD": ["51", "52", "53", "54", "55", "2221", "2229", "223", "229", "23", "26", "270", "271", "2720"],
-          "JCB": ["2131", "1800", "35"]
+          "MASTERCARD": [
+            "51", "52", "53", "54", "55", "2221", "2229", "223", "229", "23", "26", "270", "271",
+            "2720",
+          ],
+          "JCB": ["2131", "1800", "35"],
         ]
         for (issuer, cardPattern) in patterns {
           for cardPrefix in cardPattern {
             if card.hasPrefix(cardPrefix) {
               issuerCreditDetect = issuer
-//                            orderTransaction.paymentMethod?.dataCreditCard?.issuer = issuer
-              atmView.cardInput.updateExtraInfo(url: "https://static.payme.vn/image_bank/image_method/method\(issuer)@2x.png")
+              //                            orderTransaction.paymentMethod?.dataCreditCard?.issuer = issuer
+              atmView.cardInput.updateExtraInfo(
+                url: "https://static.payme.vn/image_bank/image_method/method\(issuer)@2x.png")
             }
           }
         }
@@ -333,7 +371,7 @@ class ConfirmationModal: UIViewController {
       issuerCreditDetect = nil
       atmView.cardInput.resetExtraInfo()
     }
-    if (scannedCard != nil) {
+    if scannedCard != nil {
       atmView.nameInput.textInput.text = scannedCard!["cardHolder"]
       atmView.dateInput.textInput.text = scannedCard!["cardValidDate"]
     }
@@ -353,12 +391,13 @@ class ConfirmationModal: UIViewController {
     if string != "" && string.count > 5 {
       if bankDetect == nil {
         for bank in listBank {
-          if (string.contains(bank.cardPrefix)) {
+          if string.contains(bank.cardPrefix) {
             bankDetect = bank
             atmView.dateInput.updateTitle(bank.requiredDateString.uppercased())
-            atmView.cardInput.updateExtraInfo(url: "https://static.payme.vn/image_bank/image_method/method\(bank.swiftCode)@2x.png")
-            if (scannedCard != nil) {
-              if (bank.requiredDateString == "expiredDate".localize()) {
+            atmView.cardInput.updateExtraInfo(
+              url: "https://static.payme.vn/image_bank/image_method/method\(bank.swiftCode)@2x.png")
+            if scannedCard != nil {
+              if bank.requiredDateString == "expiredDate".localize() {
                 atmView.dateInput.textInput.text = scannedCard!["cardExpiredDate"]
               } else {
                 atmView.dateInput.textInput.text = scannedCard!["cardValidDate"]
@@ -379,38 +418,41 @@ class ConfirmationModal: UIViewController {
       atmView.cardInput.updateState(state: .focus)
     }
     if (bankDetect != nil) && ((string.count == 16) || (string.count == 19)) {
-      payMEFunction.request.getBankName(swiftCode: bankDetect!.swiftCode, cardNumber: string, onSuccess: { response in
-        if string != self.cardWithoutSpace {
-          return
-        }
-        let bankNameRes = response["Utility"]!["GetBankName"] as! [String: AnyObject]
-        let succeeded = bankNameRes["succeeded"] as! Bool
-        if (succeeded == true) {
-          let name = bankNameRes["accountName"] as! String
-          if (name.count > 0) {
-            self.atmView.nameInput.textInput.text = name
-          } else if (self.scannedCard != nil) {
+      payMEFunction.request.getBankName(
+        swiftCode: bankDetect!.swiftCode, cardNumber: string,
+        onSuccess: { response in
+          if string != self.cardWithoutSpace {
+            return
+          }
+          let bankNameRes = response["Utility"]!["GetBankName"] as! [String: AnyObject]
+          let succeeded = bankNameRes["succeeded"] as! Bool
+          if succeeded == true {
+            let name = bankNameRes["accountName"] as! String
+            if name.count > 0 {
+              self.atmView.nameInput.textInput.text = name
+            } else if self.scannedCard != nil {
+              self.atmView.nameInput.textInput.text = self.scannedCard!["cardHolder"]
+            } else {
+              self.atmView.nameInput.textInput.text = ""
+            }
+          } else if self.scannedCard != nil {
             self.atmView.nameInput.textInput.text = self.scannedCard!["cardHolder"]
           } else {
             self.atmView.nameInput.textInput.text = ""
           }
-        } else if (self.scannedCard != nil) {
-          self.atmView.nameInput.textInput.text = self.scannedCard!["cardHolder"]
-        } else {
-          self.atmView.nameInput.textInput.text = ""
-        }
-        self.updateContentSize()
-        self.scannedCard = nil
-      }, onError: { error in
-        if (self.scannedCard != nil) {
-          self.atmView.nameInput.textInput.text = self.scannedCard!["cardHolder"]
-        } else {
-          self.atmView.nameInput.textInput.text = ""
-        }
-        self.updateContentSize()
-        print(error)
-        self.scannedCard = nil
-      })
+          self.updateContentSize()
+          self.scannedCard = nil
+        },
+        onError: { error in
+          if self.scannedCard != nil {
+            self.atmView.nameInput.textInput.text = self.scannedCard!["cardHolder"]
+          } else {
+            self.atmView.nameInput.textInput.text = ""
+          }
+          self.updateContentSize()
+          print(error)
+          self.scannedCard = nil
+        })
     } else {
       atmView.nameInput.textInput.text = ""
       scannedCard = nil
@@ -431,21 +473,26 @@ class ConfirmationModal: UIViewController {
 }
 
 extension ConfirmationModal: UITextFieldDelegate {
-  func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+  func textField(
+    _ textField: UITextField, shouldChangeCharactersIn range: NSRange,
+    replacementString string: String
+  ) -> Bool {
     if textField == atmView.dateInput.textInput {
-      let allowedCharacters = CharacterSet(charactersIn: "+0123456789 ")//Here change this characters based on your requirement
+      let allowedCharacters = CharacterSet(charactersIn: "+0123456789 ")  //Here change this characters based on your requirement
       let characterSet = CharacterSet(charactersIn: string)
-      if (atmView.dateInput.textInput.text?.count == 2) {
+      if atmView.dateInput.textInput.text?.count == 2 {
         if !(string == "") {
           atmView.dateInput.textInput.text = (atmView.dateInput.textInput.text)! + "/"
         }
       }
-      return allowedCharacters.isSuperset(of: characterSet) && !(textField.text!.count > 4 && (string.count) > range.length)
+      return allowedCharacters.isSuperset(of: characterSet)
+        && !(textField.text!.count > 4 && (string.count) > range.length)
     }
     if textField == atmView.cvvInput.textInput {
-      let allowedCharacters = CharacterSet(charactersIn: "+0123456789 ")//Here change this characters based on your requirement
+      let allowedCharacters = CharacterSet(charactersIn: "+0123456789 ")  //Here change this characters based on your requirement
       let characterSet = CharacterSet(charactersIn: string)
-      return allowedCharacters.isSuperset(of: characterSet) && !(textField.text!.count >= 3 && (string.count) > range.length)
+      return allowedCharacters.isSuperset(of: characterSet)
+        && !(textField.text!.count >= 3 && (string.count) > range.length)
     }
     if textField == atmView.cardInput.textInput {
       previousTextFieldContent = textField.text
@@ -500,37 +547,42 @@ extension ConfirmationModal: ATMViewDelegate {
   func onPressScanCard() {
     scannedCard = nil
     let cardScannerController = CardScannerViewController(currentVC: paymentVC ?? self)
-    cardScannerController.startScanner(onSuccess: { data in
-      print(data)
-      if (self.orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue) {
-        self.issuerCreditDetect = nil
-        self.atmView.cardInput.resetExtraInfo()
-      } else {
-        self.bankDetect = nil
-        self.atmView.dateInput.updateTitle("releaseDate".localize().uppercased())
-      }
-      self.atmView.cardInput.updateExtraInfo(data: "")
-      self.atmView.nameInput.textInput.text = ""
-      self.atmView.dateInput.textInput.text = ""
-      self.atmView.cardInput.updateState(state: .normal)
-      self.atmView.nameInput.updateState(state: .normal)
-      self.atmView.dateInput.updateState(state: .normal)
+    cardScannerController.startScanner(
+      onSuccess: { data in
+        print(data)
+        if self.orderTransaction.paymentMethod?.type == MethodType.CREDIT_CARD.rawValue {
+          self.issuerCreditDetect = nil
+          self.atmView.cardInput.resetExtraInfo()
+        } else {
+          self.bankDetect = nil
+          self.atmView.dateInput.updateTitle("releaseDate".localize().uppercased())
+        }
+        self.atmView.cardInput.updateExtraInfo(data: "")
+        self.atmView.nameInput.textInput.text = ""
+        self.atmView.dateInput.textInput.text = ""
+        self.atmView.cardInput.updateState(state: .normal)
+        self.atmView.nameInput.updateState(state: .normal)
+        self.atmView.dateInput.updateState(state: .normal)
 
-      self.scannedCard = data
-      self.atmView.cardInput.textInput.text = data["cardNumber"]
-      self.atmView.cardInput.textInput.sendActions(for: .editingChanged)
-    }, onFailed: { e in
-      print(e)
-    })
+        self.scannedCard = data
+        self.atmView.cardInput.textInput.text = data["cardNumber"]
+        self.atmView.cardInput.textInput.sendActions(for: .editingChanged)
+      },
+      onFailed: { e in
+        print(e)
+      })
   }
 
   func onWriteImage(isSuccess: Bool) {
-    if (isSuccess == true) {
-      let alert = UIAlertController(title: "notification".localize(), message: "downloadQrSucceeded".localize(), preferredStyle: .alert)
+    if isSuccess == true {
+      let alert = UIAlertController(
+        title: "notification".localize(), message: "downloadQrSucceeded".localize(),
+        preferredStyle: .alert)
       alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
       present(alert, animated: true, completion: nil)
     } else {
-      presentModal(PermissionCamera(modalVC: self, permissionType: PermissionType.MEMORY), animated: true)
+      presentModal(
+        PermissionCamera(modalVC: self, permissionType: PermissionType.MEMORY), animated: true)
     }
   }
 }

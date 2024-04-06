@@ -5,8 +5,8 @@
 //  Created by HuyOpen on 12/31/20.
 //
 
-import Foundation
 import Alamofire
+import Foundation
 
 class API {
   private var alamoFireManager: Session = {
@@ -21,18 +21,20 @@ class API {
       return false
     }
     if FileManager.default.fileExists(atPath: "/Applications/Cydia.app")
-         || FileManager.default.fileExists(atPath: "/Library/MobileSubstrate/MobileSubstrate.dylib")
-         || FileManager.default.fileExists(atPath: "/bin/bash")
-         || FileManager.default.fileExists(atPath: "/usr/sbin/sshd")
-         || FileManager.default.fileExists(atPath: "/etc/apt")
-         || FileManager.default.fileExists(atPath: "/private/var/lib/apt/")
-         || UIApplication.shared.canOpenURL(URL(string: "cydia://package/com.example.package")!) {
+      || FileManager.default.fileExists(atPath: "/Library/MobileSubstrate/MobileSubstrate.dylib")
+      || FileManager.default.fileExists(atPath: "/bin/bash")
+      || FileManager.default.fileExists(atPath: "/usr/sbin/sshd")
+      || FileManager.default.fileExists(atPath: "/etc/apt")
+      || FileManager.default.fileExists(atPath: "/private/var/lib/apt/")
+      || UIApplication.shared.canOpenURL(URL(string: "cydia://package/com.example.package")!)
+    {
 
       return true
     }
     let stringToWrite = "Jailbreak Test"
     do {
-      try stringToWrite.write(toFile: "/private/JailbreakTest.txt", atomically: true, encoding: String.Encoding.utf8)
+      try stringToWrite.write(
+        toFile: "/private/JailbreakTest.txt", atomically: true, encoding: String.Encoding.utf8)
       return true
     } catch {
       return false
@@ -40,9 +42,9 @@ class API {
   }
   private static var isEmulator: Bool {
     #if targetEnvironment(simulator)
-    return true
+      return true
     #else
-    return false
+      return false
     #endif
   }
   private let publicKey: String
@@ -57,8 +59,10 @@ class API {
   private let deviceId: String
   private var storeId: Int?
 
-  init(_ publicKey: String, _ privateKey: String, _ env: PayME.Env, _ appToken: String,
-       _ connectToken: String, _ deviceId: String, _ appId: String) {
+  init(
+    _ publicKey: String, _ privateKey: String, _ env: PayME.Env, _ appToken: String,
+    _ connectToken: String, _ deviceId: String, _ appId: String
+  ) {
     self.publicKey = publicKey
     self.privateKey = privateKey
     self.env = env
@@ -80,46 +84,61 @@ class API {
 
   func uploadVideoKYC(
     videoURL: URL,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping ([String: AnyObject]) -> ()
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void
   ) {
     print(videoURL)
     let url = urlUpload(env: env)
     let path = url + "/Upload"
-    let headers: HTTPHeaders = ["Content-type": "multipart/form-data",
-                                "Content-Disposition": "form-data"]
-    alamoFireManager.upload(multipartFormData: { (multipartFormData) in
-        multipartFormData.append(videoURL, withName: "files", fileName: "video.mp4", mimeType: "video/mp4")
-      }, to: path, method: .post, headers: headers)
-      .responseJSON { response in
-        let result = response.result
-        switch result {
-        case .success(let value):
-          onSuccess(value as! Dictionary<String, AnyObject>)
-        case .failure(let error):
-          if let underlyingError = error.underlyingError {
-            if let urlError = underlyingError as? URLError {
-              switch urlError.code {
-              case .timedOut:
-                print("Timed out error")
-                onError(["code": 500 as AnyObject, "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
-              case .notConnectedToInternet:
-                onError(["code": 500 as AnyObject, "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
-              default:
-                onError(["code": 500 as AnyObject, "message": "Something went wrong" as AnyObject])
-              }
-            } else {
-              onError(["code": 500 as AnyObject, "message": "Lỗi hệ thống (Upload not found)" as AnyObject])
+    let headers: HTTPHeaders = [
+      "Content-type": "multipart/form-data",
+      "Content-Disposition": "form-data",
+    ]
+    alamoFireManager.upload(
+      multipartFormData: { (multipartFormData) in
+        multipartFormData.append(
+          videoURL, withName: "files", fileName: "video.mp4", mimeType: "video/mp4")
+      }, to: path, method: .post, headers: headers
+    )
+    .responseJSON { response in
+      let result = response.result
+      switch result {
+      case .success(let value):
+        onSuccess(value as! [String: AnyObject])
+      case .failure(let error):
+        if let underlyingError = error.underlyingError {
+          if let urlError = underlyingError as? URLError {
+            switch urlError.code {
+            case .timedOut:
+              print("Timed out error")
+              onError([
+                "code": 500 as AnyObject,
+                "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !"
+                  as AnyObject,
+              ])
+            case .notConnectedToInternet:
+              onError([
+                "code": 500 as AnyObject,
+                "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !"
+                  as AnyObject,
+              ])
+            default:
+              onError(["code": 500 as AnyObject, "message": "Something went wrong" as AnyObject])
             }
+          } else {
+            onError([
+              "code": 500 as AnyObject, "message": "Lỗi hệ thống (Upload not found)" as AnyObject,
+            ])
           }
         }
       }
+    }
   }
 
   func getService(
-    onSuccess: @escaping ([String: AnyObject]) -> (),
-    onError: @escaping ([String: AnyObject]) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -127,7 +146,7 @@ class API {
     let variables: [String: Any] = ["configsAppId": appId as Any]
     let json: [String: Any] = [
       "query": GraphQuery.getServiceQuery,
-      "variables": variables
+      "variables": variables,
     ]
     let params = try? JSONSerialization.data(withJSONObject: json)
     onRequest(url, path, params, onSuccess, onError, onPaymeError)
@@ -135,9 +154,9 @@ class API {
 
   func getAccountInfo(
     accountPhone: Any,
-    onSuccess: @escaping ([String: AnyObject]) -> (),
-    onError: @escaping ([String: AnyObject]) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -145,74 +164,89 @@ class API {
     let variables: [String: Any] = ["accountPhone": accountPhone]
     let json: [String: Any] = [
       "query": GraphQuery.getAccountInfoQuery,
-      "variables": variables
+      "variables": variables,
     ]
     let params = try? JSONSerialization.data(withJSONObject: json)
     onRequest(url, path, params, onSuccess, onError, onPaymeError)
   }
 
-
   func uploadImageKYC(
     imageFront: UIImage,
     imageBack: UIImage?,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping ([String: AnyObject]) -> ()
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void
   ) {
     let url = urlUpload(env: env)
     let path = url + "/Upload"
     let imageData = imageFront.jpegData(compressionQuality: 1)
-    let headers: HTTPHeaders = ["Content-type": "multipart/form-data",
-                                "Content-Disposition": "form-data"]
+    let headers: HTTPHeaders = [
+      "Content-type": "multipart/form-data",
+      "Content-Disposition": "form-data",
+    ]
 
-
-    alamoFireManager.upload(multipartFormData: { multipartFormData in
-        multipartFormData.append(imageData!, withName: "files", fileName: "imageFront.png", mimeType: "image/png")
-        if (imageBack != nil) {
+    alamoFireManager.upload(
+      multipartFormData: { multipartFormData in
+        multipartFormData.append(
+          imageData!, withName: "files", fileName: "imageFront.png", mimeType: "image/png")
+        if imageBack != nil {
           let imageDataBack = imageBack!.jpegData(compressionQuality: 1)
-          multipartFormData.append(imageDataBack!, withName: "files", fileName: "imageBack.png", mimeType: "image/png")
+          multipartFormData.append(
+            imageDataBack!, withName: "files", fileName: "imageBack.png", mimeType: "image/png")
         }
-      }, to: path, method: .post, headers: headers)
-      .responseJSON { response in
-        let result = response.result
-        switch result {
-        case .success(let value):
-          onSuccess(value as! Dictionary<String, AnyObject>)
-        case .failure(let error):
-          if let underlyingError = error.underlyingError {
-            if let urlError = underlyingError as? URLError {
-              switch urlError.code {
-              case .timedOut:
-                print("Timed out error")
-                onError(["code": 500 as AnyObject, "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
-              case .notConnectedToInternet:
-                onError(["code": 500 as AnyObject, "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !" as AnyObject])
-              default:
-                onError(["code": 500 as AnyObject, "message": "Something went wrong" as AnyObject])
-              }
-            } else {
-              onError(["code": 500 as AnyObject, "message": "Lỗi hệ thống (Upload not found)" as AnyObject])
+      }, to: path, method: .post, headers: headers
+    )
+    .responseJSON { response in
+      let result = response.result
+      switch result {
+      case .success(let value):
+        onSuccess(value as! [String: AnyObject])
+      case .failure(let error):
+        if let underlyingError = error.underlyingError {
+          if let urlError = underlyingError as? URLError {
+            switch urlError.code {
+            case .timedOut:
+              print("Timed out error")
+              onError([
+                "code": 500 as AnyObject,
+                "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !"
+                  as AnyObject,
+              ])
+            case .notConnectedToInternet:
+              onError([
+                "code": 500 as AnyObject,
+                "message": "Kết nối mạng bị sự cố, vui lòng kiểm tra và thử lại. Xin cảm ơn !"
+                  as AnyObject,
+              ])
+            default:
+              onError(["code": 500 as AnyObject, "message": "Something went wrong" as AnyObject])
             }
+          } else {
+            onError([
+              "code": 500 as AnyObject, "message": "Lỗi hệ thống (Upload not found)" as AnyObject,
+            ])
           }
         }
       }
+    }
   }
 
   func getSetting(
-    onSuccess: @escaping ([String: AnyObject]) -> (),
-    onError: @escaping ([String: AnyObject]) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
     let path = "/graphql"
     let variables: [String: Any] = [
-      "configsKeys": ["limit.param.amount.payment",
-                      "kyc.mode.enable",
-                      "credit.sacom.auth.link",
-                      "service.main.visible",
-                      "sdk.web.secretKey",
-                      "sdk.scanModule.enable",
-                      "limit.payment.password",
+      "configsKeys": [
+        "limit.param.amount.payment",
+        "kyc.mode.enable",
+        "credit.sacom.auth.link",
+        "service.main.visible",
+        "sdk.web.secretKey",
+        "sdk.scanModule.enable",
+        "limit.payment.password",
       ]
     ]
     let json: [String: Any] = [
@@ -223,11 +257,10 @@ class API {
     onRequest(url, path, params, onSuccess, onError, onPaymeError)
   }
 
-
   func getWalletInfo(
-    onSuccess: @escaping ([String: AnyObject]) -> (),
-    onError: @escaping ([String: AnyObject]) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -244,9 +277,9 @@ class API {
   func transferATM(
     storeId: Int?, userName: String?, orderId: String, extraData: String, note: String,
     cardNumber: String, cardHolder: String, issuedAt: String, amount: Int,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -259,20 +292,20 @@ class API {
         "bankCard": [
           "cardNumber": cardNumber,
           "cardHolder": cardHolder,
-          "issuedAt": issuedAt
+          "issuedAt": issuedAt,
         ]
-      ]
+      ],
     ]
-    if (storeId != nil) {
+    if storeId != nil {
       payInput.updateValue(storeId, forKey: "storeId")
     }
     if userName != nil {
       payInput.updateValue(userName, forKey: "userName")
     }
-    if (note != "") {
+    if note != "" {
       payInput.updateValue(note, forKey: "note")
     }
-    if (extraData != "") {
+    if extraData != "" {
       payInput.updateValue(extraData, forKey: "referExtraData")
     }
     let variables: [String: Any] = ["payInput": payInput]
@@ -287,9 +320,9 @@ class API {
   func payVNPayQRCode(
     storeId: Int?, userName: String?, orderId: String, extraData: String, note: String, amount: Int,
     redirectUrl: String, failedUrl: String,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) -> URLSessionDataTask? {
     let url = urlGraphQL(env: env)
@@ -303,9 +336,9 @@ class API {
           "active": true,
           "redirectUrl": redirectUrl,
         ]
-      ]
+      ],
     ]
-    if (storeId != nil) {
+    if storeId != nil {
       payInput.updateValue(storeId, forKey: "storeId")
     }
     if userName != nil {
@@ -322,10 +355,11 @@ class API {
 
   func transferCreditCard(
     storeId: Int?, userName: String?, orderId: String, extraData: String, note: String,
-    cardNumber: String, cardHolder: String, expiredAt: String, cvv: String, refId: String, amount: Int,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    cardNumber: String, cardHolder: String, expiredAt: String, cvv: String, refId: String,
+    amount: Int,
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -342,9 +376,9 @@ class API {
               "cardHolder": cardHolder,
               "expiredAt": expiredAt,
               "cvv": cvv,
-              "referenceId": refId
+              "referenceId": refId,
             ]
-          ]
+          ],
         ]
       } else {
         return [
@@ -355,22 +389,22 @@ class API {
             "creditCard": [
               "cardNumber": cardNumber,
               "expiredAt": expiredAt,
-              "cvv": cvv
+              "cvv": cvv,
             ]
-          ]
+          ],
         ]
       }
     }()
     if userName != nil {
       payInput.updateValue(userName, forKey: "userName")
     }
-    if (storeId != nil) {
+    if storeId != nil {
       payInput.updateValue(storeId, forKey: "storeId")
     }
-    if (note != "") {
+    if note != "" {
       payInput.updateValue(note, forKey: "note")
     }
-    if (extraData != "") {
+    if extraData != "" {
       payInput.updateValue(extraData, forKey: "referExtraData")
     }
     let variables: [String: Any] = ["payInput": payInput]
@@ -384,9 +418,9 @@ class API {
 
   func paymentBankTransfer(
     storeId: Int?, userName: String?, orderId: String, extraData: String, note: String, amount: Int,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -398,20 +432,20 @@ class API {
       "payment": [
         "bankTransfer": [
           "active": true,
-          "recheck": true
+          "recheck": true,
         ]
-      ]
+      ],
     ]
     if userName != nil {
       payInput.updateValue(userName, forKey: "userName")
     }
-    if (storeId != nil) {
+    if storeId != nil {
       payInput.updateValue(storeId, forKey: "storeId")
     }
-    if (note != "") {
+    if note != "" {
       payInput.updateValue(note, forKey: "note")
     }
-    if (extraData != "") {
+    if extraData != "" {
       payInput.updateValue(extraData, forKey: "referExtraData")
     }
     let variables: [String: Any] = ["payInput": payInput]
@@ -425,9 +459,9 @@ class API {
 
   func createSecurityCode(
     password: String,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -435,7 +469,7 @@ class API {
     let variables: [String: Any] = [
       "createCodeByPasswordInput": [
         "clientId": clientId,
-        "password": password
+        "password": password,
       ]
     ]
     let json: [String: Any] = [
@@ -446,40 +480,46 @@ class API {
     onRequest(url, path, params, onSuccess, onError, onPaymeError)
   }
 
-  func sendPayMEOTP(onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-                    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-                    onPaymeError: @escaping (String) -> () = { s in
-                    }) {
+  func sendPayMEOTP(
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
+    }
+  ) {
     let url = urlGraphQL(env: env)
     let path = "/graphql"
-    let json = [
-      "query": GraphQuery.sendPayMEOTP,
-      "variables": [
-        "input": [
-          "clientId": clientId
-        ]
-      ],
-    ] as [String: Any]
+    let json =
+      [
+        "query": GraphQuery.sendPayMEOTP,
+        "variables": [
+          "input": [
+            "clientId": clientId
+          ]
+        ],
+      ] as [String: Any]
     let params = try? JSONSerialization.data(withJSONObject: json)
     onRequest(url, path, params, onSuccess, onError, onPaymeError)
   }
 
-  func verifyPayMEOTP(OTP: String,
-                      onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-                      onError: @escaping (Dictionary<String, AnyObject>) -> (),
-                      onPaymeError: @escaping (String) -> () = { s in
-                      }) {
+  func verifyPayMEOTP(
+    OTP: String,
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
+    }
+  ) {
     let url = urlGraphQL(env: env)
     let path = "/graphql"
-    let json = [
-      "query": GraphQuery.verifyPayMEOTP,
-      "variables": [
-        "input": [
-          "clientId": clientId,
-          "activeCode": OTP,
-        ]
-      ],
-    ] as [String: Any]
+    let json =
+      [
+        "query": GraphQuery.verifyPayMEOTP,
+        "variables": [
+          "input": [
+            "clientId": clientId,
+            "activeCode": OTP,
+          ]
+        ],
+      ] as [String: Any]
     let params = try? JSONSerialization.data(withJSONObject: json)
     onRequest(url, path, params, onSuccess, onError, onPaymeError)
   }
@@ -487,9 +527,9 @@ class API {
   func transferByLinkedBank(
     transaction: String, storeId: Int?, userName: String?, orderId: String, linkedId: Int,
     extraData: String, note: String, otp: String, amount: Int,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -505,20 +545,20 @@ class API {
         "linked": [
           "linkedId": linkedId,
           "otp": otp,
-          "envName": "MobileApp"
+          "envName": "MobileApp",
         ]
-      ]
+      ],
     ]
-    if (storeId != nil) {
+    if storeId != nil {
       payInput.updateValue(storeId, forKey: "storeId")
     }
     if userName != nil {
       payInput.updateValue(userName, forKey: "userName")
     }
-    if (note != "") {
+    if note != "" {
       payInput.updateValue(note, forKey: "note")
     }
-    if (extraData != "") {
+    if extraData != "" {
       payInput.updateValue(extraData, forKey: "referExtraData")
     }
     let variables: [String: Any] = ["payInput": payInput]
@@ -532,9 +572,9 @@ class API {
 
   func readQRContent(
     qrContent: String,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -542,7 +582,7 @@ class API {
     let variables: [String: Any] = [
       "detectInput": [
         "clientId": clientId,
-        "qrContent": qrContent
+        "qrContent": qrContent,
       ]
     ]
     let json: [String: Any] = [
@@ -555,9 +595,9 @@ class API {
 
   func authenCreditCard(
     cardNumber: String, expiredAt: String, linkedId: Int?,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -584,10 +624,11 @@ class API {
   }
 
   func checkFlowLinkedBank(
-    storeId: Int?, userName: String?, orderId: String, linkedId: Int, refId: String, extraData: String, note: String, amount: Int,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    storeId: Int?, userName: String?, orderId: String, linkedId: Int, refId: String,
+    extraData: String, note: String, amount: Int,
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -604,9 +645,9 @@ class API {
             "linked": [
               "linkedId": linkedId,
               "envName": "MobileApp",
-              "referenceId": refId
+              "referenceId": refId,
             ]
-          ]
+          ],
         ]
       } else {
         return [
@@ -618,9 +659,9 @@ class API {
           "payment": [
             "linked": [
               "linkedId": linkedId,
-              "envName": "MobileApp"
+              "envName": "MobileApp",
             ]
-          ]
+          ],
         ]
       }
     }()
@@ -630,10 +671,10 @@ class API {
     if userName != nil {
       payInput.updateValue(userName, forKey: "userName")
     }
-    if (note != "") {
+    if note != "" {
       payInput.updateValue(note, forKey: "note")
     }
-    if (extraData != "") {
+    if extraData != "" {
       payInput.updateValue(extraData, forKey: "referExtraData")
     }
     let variables: [String: Any] = ["payInput": payInput]
@@ -646,10 +687,11 @@ class API {
   }
 
   func transferWallet(
-    storeId: Int?, userName: String?, orderId: String, securityCode: String, extraData: String, note: String, amount: Int,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    storeId: Int?, userName: String?, orderId: String, securityCode: String, extraData: String,
+    note: String, amount: Int,
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -662,20 +704,20 @@ class API {
       "payment": [
         "wallet": [
           "active": true,
-          "securityCode": securityCode
+          "securityCode": securityCode,
         ]
-      ]
+      ],
     ]
-    if (storeId != nil) {
+    if storeId != nil {
       payInput.updateValue(storeId, forKey: "storeId")
     }
     if userName != nil {
       payInput.updateValue(userName, forKey: "userName")
     }
-    if (note != "") {
+    if note != "" {
       payInput.updateValue(note, forKey: "note")
     }
-    if (extraData != "") {
+    if extraData != "" {
       payInput.updateValue(extraData, forKey: "referExtraData")
     }
     let variables: [String: Any] = ["payInput": payInput]
@@ -688,10 +730,11 @@ class API {
   }
 
   func creditWallet(
-    storeId: Int?, orderId: String, securityCode: String, supplierLinkedId: String, extraData: String, note: String, amount: Int,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    storeId: Int?, orderId: String, securityCode: String, supplierLinkedId: String,
+    extraData: String, note: String, amount: Int,
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -706,14 +749,14 @@ class API {
         "creditBalance": [
           "active": true,
           "securityCode": securityCode,
-          "supplierLinkedId": supplierLinkedId
+          "supplierLinkedId": supplierLinkedId,
         ]
-      ]
+      ],
     ]
-    if (note != "") {
+    if note != "" {
       payInput.updateValue(note, forKey: "note")
     }
-    if (extraData != "") {
+    if extraData != "" {
       payInput.updateValue(extraData, forKey: "referExtraData")
     }
     let variables: [String: Any] = ["payInput": payInput]
@@ -727,16 +770,17 @@ class API {
 
   func getTransferMethods(
     payCode: String = "",
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
     let path = "/graphql"
-    var input = [
-      "serviceType": "OPEN_EWALLET_PAYMENT",
-    ] as [String: Any]
+    var input =
+      [
+        "serviceType": "OPEN_EWALLET_PAYMENT"
+      ] as [String: Any]
     if storeId != nil {
       input.updateValue(["storeId": storeId!, "isQuotaReceive": true], forKey: "extraData")
     } else {
@@ -756,23 +800,23 @@ class API {
     onRequest(url, path, params, onSuccess, onError, onPaymeError)
   }
 
-
   func verifyKYC(
-    pathFront: String?, pathBack: String?, pathAvatar: String?, pathVideo: String?, isUpdateIdentify: Bool = false,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    pathFront: String?, pathBack: String?, pathAvatar: String?, pathVideo: String?,
+    isUpdateIdentify: Bool = false,
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
     let path = "/graphql"
     var kycInput: [String: Any] = ["clientId": clientId]
-    if (pathBack != nil || pathFront != nil) {
+    if pathBack != nil || pathFront != nil {
       var image: [String: Any] = [:]
-      if (pathFront != nil) {
+      if pathFront != nil {
         image.updateValue(pathFront!, forKey: "front")
       }
-      if (pathBack != nil) {
+      if pathBack != nil {
         image.updateValue(pathBack!, forKey: "back")
       }
       if isUpdateIdentify {
@@ -781,10 +825,10 @@ class API {
         kycInput.updateValue(image, forKey: "image")
       }
     }
-    if (pathVideo != nil) {
+    if pathVideo != nil {
       kycInput.updateValue(pathVideo!, forKey: "video")
     }
-    if (pathAvatar != nil) {
+    if pathAvatar != nil {
       kycInput.updateValue(pathAvatar!, forKey: "face")
     }
     let variables: [String: Any] = ["kycInput": kycInput]
@@ -793,11 +837,15 @@ class API {
       "variables": variables,
     ]
     let params = try? JSONSerialization.data(withJSONObject: json)
-    let request = NetworkRequestGraphQL(appId: appId, url: url, path: path, token: accessTokenKYC, params: params, publicKey: publicKey, privateKey: privateKey)
-    if (env == PayME.Env.DEV) {
-      request.setOnRequest(onError: { error in onError(error) }, onSuccess: { data in onSuccess(data) })
+    let request = NetworkRequestGraphQL(
+      appId: appId, url: url, path: path, token: accessTokenKYC, params: params,
+      publicKey: publicKey, privateKey: privateKey)
+    if env == PayME.Env.DEV {
+      request.setOnRequest(
+        onError: { error in onError(error) }, onSuccess: { data in onSuccess(data) })
     } else {
-      request.setOnRequestCrypto(onError: { error in onError(error) },
+      request.setOnRequestCrypto(
+        onError: { error in onError(error) },
         onSuccess: { data in onSuccess(data) },
         onPaymeError: { message in onPaymeError(message) }
       )
@@ -806,9 +854,9 @@ class API {
 
   func getBankName(
     swiftCode: String, cardNumber: String,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -817,7 +865,7 @@ class API {
       "getBankNameInput": [
         "swiftCode": swiftCode,
         "type": "CARD",
-        "cardNumber": cardNumber
+        "cardNumber": cardNumber,
       ]
     ]
     let json: [String: Any] = [
@@ -829,26 +877,26 @@ class API {
   }
 
   func getBankList(
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
     let path = "/graphql"
-//    let variables: [String: Any] = [:]
+    //    let variables: [String: Any] = [:]
     let json: [String: Any] = [
-      "query": GraphQuery.getBankListQuery,
-//      "variables": variables,
+      "query": GraphQuery.getBankListQuery
+      //      "variables": variables,
     ]
     let params = try? JSONSerialization.data(withJSONObject: json)
     onRequest(url, path, params, onSuccess, onError, onPaymeError)
   }
 
   func getVietQRBankList(
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -864,9 +912,9 @@ class API {
 
   func createVietQR(
     storeId: Int?, userName: String?, orderId: String, note: String, amount: Int,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -877,17 +925,17 @@ class API {
       "orderId": orderId,
       "payment": [
         "vietQR": [
-          "active": true,
+          "active": true
         ]
-      ]
+      ],
     ]
-    if (storeId != nil) {
+    if storeId != nil {
       payInput.updateValue(storeId, forKey: "storeId")
     }
     if userName != nil {
       payInput.updateValue(userName, forKey: "userName")
     }
-    if (note != "") {
+    if note != "" {
       payInput.updateValue(note, forKey: "note")
     }
 
@@ -901,9 +949,9 @@ class API {
   }
 
   func registerClient(
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -916,7 +964,7 @@ class API {
         "version": "1",
         "isEmulator": API.isEmulator,
         "isRoot": API.isRoot,
-        "userAgent": UIDevice.current.name
+        "userAgent": UIDevice.current.name,
       ]
     ]
     print(variables)
@@ -930,17 +978,19 @@ class API {
 
   func getMerchantInformation(
     storeId: Int?,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
     let path = "/graphql"
-    var variables: [String: Any] = ["infoInput": [
-      "appId": appId,
-    ]]
-    if (storeId != nil) {
+    var variables: [String: Any] = [
+      "infoInput": [
+        "appId": appId
+      ]
+    ]
+    if storeId != nil {
       variables.updateValue(storeId, forKey: "storeId")
     }
     let json: [String: Any] = [
@@ -953,18 +1003,20 @@ class API {
 
   func initAccount(
     clientID: String,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
     let path = "/graphql"
-    let variables: [String: Any] = ["initInput": [
-      "appToken": appToken,
-      "connectToken": connectToken,
-      "clientId": clientID
-    ]]
+    let variables: [String: Any] = [
+      "initInput": [
+        "appToken": appToken,
+        "connectToken": connectToken,
+        "clientId": clientID,
+      ]
+    ]
     let json: [String: Any] = [
       "query": GraphQuery.initAccountQuery,
       "variables": variables,
@@ -974,9 +1026,9 @@ class API {
   }
 
   func getWalletGraphQL(
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -993,18 +1045,19 @@ class API {
   func getFee(
     amount: Int,
     payment: [String: Any]?,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
     let path = "/graphql"
-    var variables = [
-      "clientId": clientId,
-      "serviceType": "OPEN_EWALLET_PAYMENT",
-      "amount": amount
-    ] as [String: Any]
+    var variables =
+      [
+        "clientId": clientId,
+        "serviceType": "OPEN_EWALLET_PAYMENT",
+        "amount": amount,
+      ] as [String: Any]
     if payment != nil {
       variables.updateValue(payment, forKey: "payment")
     }
@@ -1023,9 +1076,9 @@ class API {
 
   func getTransactionInfo(
     transaction: String,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) -> URLSessionDataTask? {
     let url = urlGraphQL(env: env)
@@ -1045,9 +1098,9 @@ class API {
 
   func getListBankManual(
     storeId: Int?, userName: String?, orderId: String, amount: Int,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
     let url = urlGraphQL(env: env)
@@ -1059,11 +1112,11 @@ class API {
       "payment": [
         "bankTransfer": [
           "active": true,
-          "recheck": false
+          "recheck": false,
         ]
-      ]
+      ],
     ]
-    if (storeId != nil) {
+    if storeId != nil {
       variables.updateValue(storeId, forKey: "storeId")
     }
     if userName != nil {
@@ -1081,19 +1134,23 @@ class API {
 
   private func onRequest(
     _ url: String, _ path: String, _ params: Data?,
-    _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    _ onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    _ onPaymeError: @escaping (String) -> () = { s in
+    _ onSuccess: @escaping ([String: AnyObject]) -> Void,
+    _ onError: @escaping ([String: AnyObject]) -> Void,
+    _ onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
-    let request = NetworkRequestGraphQL(appId: appId, url: url, path: path, token: accessToken, params: params, publicKey: publicKey, privateKey: privateKey)
-    if (env == PayME.Env.DEV) {
-      request.setOnRequest(onError: { error in onError(error) }, onSuccess: { data in onSuccess(data) })
+    let request = NetworkRequestGraphQL(
+      appId: appId, url: url, path: path, token: accessToken, params: params, publicKey: publicKey,
+      privateKey: privateKey)
+    if env == PayME.Env.DEV {
+      request.setOnRequest(
+        onError: { error in onError(error) }, onSuccess: { data in onSuccess(data) })
     } else {
-      request.setOnRequestCrypto(onError: { error in
-        print("[ERROR] ", error)
-        onError(error)
-      },
+      request.setOnRequestCrypto(
+        onError: { error in
+          print("[ERROR] ", error)
+          onError(error)
+        },
         onSuccess: { data in
           print("[RESPONSE] ", data)
           onSuccess(data)
@@ -1108,38 +1165,51 @@ class API {
 
   private func onRequestCancellable(
     _ url: String, _ path: String, _ params: Data?,
-    _ onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    _ onError: @escaping (Dictionary<String, AnyObject>) -> (),
-    _ onPaymeError: @escaping (String) -> () = { s in
+    _ onSuccess: @escaping ([String: AnyObject]) -> Void,
+    _ onError: @escaping ([String: AnyObject]) -> Void,
+    _ onPaymeError: @escaping (String) -> Void = { s in
     }
   ) -> URLSessionDataTask? {
-    let request = NetworkRequestGraphQL(appId: appId, url: url, path: path, token: accessToken, params: params, publicKey: publicKey, privateKey: privateKey)
-    if (env == PayME.Env.DEV) {
-      return request.setOnRequest(onError: { error in onError(error) }, onSuccess: { data in onSuccess(data) })
+    let request = NetworkRequestGraphQL(
+      appId: appId, url: url, path: path, token: accessToken, params: params, publicKey: publicKey,
+      privateKey: privateKey)
+    if env == PayME.Env.DEV {
+      return request.setOnRequest(
+        onError: { error in onError(error) }, onSuccess: { data in onSuccess(data) })
     } else {
-      return request.setOnRequestCrypto(onError: { error in onError(error) }, onSuccess: { data in onSuccess(data) }, onPaymeError: { message in onPaymeError(message) })
+      return request.setOnRequestCrypto(
+        onError: { error in onError(error) }, onSuccess: { data in onSuccess(data) },
+        onPaymeError: { message in onPaymeError(message) })
     }
   }
 
   public func decryptSubscriptionMessage(
     xAPIMessageResponse: String,
     xAPIKeyResponse: String,
-//            xAPIValidateResponse: String,
-    onSuccess: @escaping (Dictionary<String, AnyObject>) -> (),
-    onError: @escaping ([String: AnyObject]) -> (),
-    onPaymeError: @escaping (String) -> () = { s in
+    //            xAPIValidateResponse: String,
+    onSuccess: @escaping ([String: AnyObject]) -> Void,
+    onError: @escaping ([String: AnyObject]) -> Void,
+    onPaymeError: @escaping (String) -> Void = { s in
     }
   ) {
-    guard let decryptKey = try? CryptoRSA.decryptRSA(encryptedString: xAPIKeyResponse, privateKey: self.privateKey) else {
+    guard
+      let decryptKey = try? CryptoRSA.decryptRSA(
+        encryptedString: xAPIKeyResponse, privateKey: self.privateKey)
+    else {
       DispatchQueue.main.async {
-        onError(["code": PayME.ResponseCode.ERROR_KEY_ENCODE as AnyObject, "message": "Giải mã thất bại" as AnyObject])
+        onError([
+          "code": PayME.ResponseCode.ERROR_KEY_ENCODE as AnyObject,
+          "message": "Giải mã thất bại" as AnyObject,
+        ])
       }
       return
     }
     let stringJSON = CryptoAES.decryptAES(text: xAPIMessageResponse, password: decryptKey)
-//        let formattedString = self.formatString(dataRaw: stringJSON)
+    //        let formattedString = self.formatString(dataRaw: stringJSON)
     let dataJSON = stringJSON.data(using: .utf8)
-    if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options: []) as? Dictionary<String, AnyObject> {
+    if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSON!, options: [])
+      as? [String: AnyObject]
+    {
       if let errors = finalJSON["errors"] as? [[String: AnyObject]] {
         DispatchQueue.main.async {
           var code = PayME.ResponseCode.SYSTEM
@@ -1155,24 +1225,29 @@ class API {
         }
         return
       }
-      if let data = finalJSON["data"] as? Dictionary<String, AnyObject> {
+      if let data = finalJSON["data"] as? [String: AnyObject] {
         DispatchQueue.main.async {
           onSuccess(data)
         }
       }
     } else {
       let dataJSONRest = stringJSON.data(using: .utf8)
-      if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSONRest!, options: []) as? Dictionary<String, AnyObject> {
-        if let data = finalJSON["data"] as? [String: AnyObject] {
+      if let finalJSON = try? JSONSerialization.jsonObject(with: dataJSONRest!, options: [])
+        as? [String: AnyObject]
+      {
+        if finalJSON["data"] is [String: AnyObject] {
           DispatchQueue.main.async {
-//                        onError(["code": code as AnyObject, "message": data["message"] as AnyObject])
+            //                        onError(["code": code as AnyObject, "message": data["message"] as AnyObject])
           }
           return
         }
       } else {
         DispatchQueue.main.async {
           print("[ERROR] CAN_NOT_JSON_DECRYPT_SUBSCRIPTION")
-          onError(["code": PayME.ResponseCode.SYSTEM as AnyObject, "message": "Không thể kết nối tới server" as AnyObject])
+          onError([
+            "code": PayME.ResponseCode.SYSTEM as AnyObject,
+            "message": "Không thể kết nối tới server" as AnyObject,
+          ])
           return
         }
       }

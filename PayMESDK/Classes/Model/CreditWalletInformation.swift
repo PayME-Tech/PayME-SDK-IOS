@@ -8,9 +8,9 @@
 import Foundation
 
 class CreditWalletInformation {
-    var supplierLinkedId: String?
-    
-    init(supplierLinkedId: String?) {
-        self.supplierLinkedId = supplierLinkedId
-    }
+  var supplierLinkedId: String?
+
+  init(supplierLinkedId: String?) {
+    self.supplierLinkedId = supplierLinkedId
+  }
 }

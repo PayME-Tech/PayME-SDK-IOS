@@ -45,14 +45,14 @@ Pod::Spec.new do |s|
     s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
 
   s.frameworks = 'UIKit', 'WebKit', 'Foundation', 'Security'
-  s.dependency 'CryptoSwift', '1.3.2'
-  s.dependency 'SwiftyRSA', '1.5'
+  s.dependency 'CryptoSwift'
+  s.dependency 'SwiftyRSA'
   s.dependency 'Alamofire'
   s.dependency 'lottie-ios', '< 4.0'
   s.dependency 'RxSwift'
   s.dependency 'RxCocoa'
   s.dependency 'SVGKit'
   s.dependency 'SwiftyJSON'
-  s.dependency 'Toast-Swift', '~> 5.0.1'
+  s.dependency 'Toast-Swift'
   s.dependency 'PayCardsRecognizer'
 end

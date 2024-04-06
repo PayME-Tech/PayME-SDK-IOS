@@ -90,8 +90,10 @@ class PaymentMethod {
     self.dataVietQR = dataVietQR
     self.iconUrl = iconUrl
   }
-  
+
   func cloneWith(type: String) -> PaymentMethod {
-    return PaymentMethod(type: type, title: self.title, label: self.label, fee: self.fee, dataWallet: self.dataWallet, dataLinked: self.dataLinked, dataBank: self.dataBank, iconUrl: self.iconUrl)
+    return PaymentMethod(
+      type: type, title: self.title, label: self.label, fee: self.fee, dataWallet: self.dataWallet,
+      dataLinked: self.dataLinked, dataBank: self.dataBank, iconUrl: self.iconUrl)
   }
 }

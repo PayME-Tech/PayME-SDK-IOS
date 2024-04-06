@@ -8,17 +8,17 @@
 import Foundation
 
 public class ServiceConfig {
-    var code: String = ""
-    var description: String = ""
+  var code: String = ""
+  var description: String = ""
 
-    public init(_ code: String, _ description: String) {
-        self.code = code
-        self.description = description
-    }
-    public func getCode() -> String {
-        code
-    }
-    public func getDescription() -> String {
-        description
-    }
+  public init(_ code: String, _ description: String) {
+    self.code = code
+    self.description = description
+  }
+  public func getCode() -> String {
+    code
+  }
+  public func getDescription() -> String {
+    description
+  }
 }

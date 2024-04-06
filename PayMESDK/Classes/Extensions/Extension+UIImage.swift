@@ -36,7 +36,9 @@ extension UIImageView {
         }
         return
       }
-      guard let data = try? Data(contentsOf: unwrappedUrl), let image = UIImage(data: data) else { return }
+      guard let data = try? Data(contentsOf: unwrappedUrl), let image = UIImage(data: data) else {
+        return
+      }
       DispatchQueue.main.async {
         self?.image = image
       }
@@ -52,12 +54,14 @@ extension SVGKImage {
     self.init(named: named, in: resourceBundle)
   }
 
-  private func fillColorForSubLayer(layer: CALayer, color: UIColor, opacity: Float, defaultColor: String = "#6756D6") {
+  private func fillColorForSubLayer(
+    layer: CALayer, color: UIColor, opacity: Float, defaultColor: String = "#6756D6"
+  ) {
     if layer is CAShapeLayer {
       let shapeLayer = layer as! CAShapeLayer
       if shapeLayer.fillColor != nil {
-//                print("minh khoa")
-//                print(hexStringFromColor(color: UIColor(cgColor: shapeLayer.fillColor!)))
+        //                print("minh khoa")
+        //                print(hexStringFromColor(color: UIColor(cgColor: shapeLayer.fillColor!)))
         if hexStringFromColor(color: UIColor(cgColor: shapeLayer.fillColor!)) == defaultColor {
           shapeLayer.fillColor = color.cgColor
           shapeLayer.opacity = opacity
@@ -67,7 +71,8 @@ extension SVGKImage {
 
     if let sublayers = layer.sublayers {
       for subLayer in sublayers {
-        fillColorForSubLayer(layer: subLayer, color: color, opacity: opacity, defaultColor: defaultColor)
+        fillColorForSubLayer(
+          layer: subLayer, color: color, opacity: opacity, defaultColor: defaultColor)
       }
     }
   }
@@ -85,7 +90,9 @@ extension SVGKImage {
     let g: CGFloat = components?[1] ?? 0.0
     let b: CGFloat = components?[2] ?? 0.0
 
-    let hexString = String(format: "#%02lX%02lX%02lX", lroundf(Float(r * 255)), lroundf(Float(g * 255)), lroundf(Float(b * 255)))
+    let hexString = String(
+      format: "#%02lX%02lX%02lX", lroundf(Float(r * 255)), lroundf(Float(g * 255)),
+      lroundf(Float(b * 255)))
     return hexString
   }
 
@@ -105,7 +112,9 @@ extension SVGKImage {
 extension CIImage {
   func combined(with image: CIImage) -> CIImage? {
     guard let combinedFilter = CIFilter(name: "CISourceOverCompositing") else { return nil }
-    let centerTransform = CGAffineTransform(translationX: extent.midX - (image.extent.size.width / 2), y: extent.midY - (image.extent.size.height / 2))
+    let centerTransform = CGAffineTransform(
+      translationX: extent.midX - (image.extent.size.width / 2),
+      y: extent.midY - (image.extent.size.height / 2))
     combinedFilter.setValue(image.transformed(by: centerTransform), forKey: "inputImage")
     combinedFilter.setValue(self, forKey: "inputBackgroundImage")
     return combinedFilter.outputImage!

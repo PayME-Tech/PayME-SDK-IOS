@@ -8,7 +8,7 @@
 import Foundation
 
 class GraphQuery {
-    static let getServiceQuery = """
+  static let getServiceQuery = """
     query getServiceQuery($configsAppId: String) {
       Setting {
         configs(appId: $configsAppId) {
@@ -19,7 +19,7 @@ class GraphQuery {
       }
     }
     """
-    static let getAccountInfoQuery = """
+  static let getAccountInfoQuery = """
     query getAccountInfoQuery($accountPhone: String) {
       Account(phone: $accountPhone) {
         accountId
@@ -70,7 +70,7 @@ class GraphQuery {
       }
     }
     """
-    static let getSettingQuery = """
+  static let getSettingQuery = """
     query getSettingQuery($configsKeys: [String]) {
       Setting {
         configs(keys: $configsKeys) {
@@ -81,7 +81,7 @@ class GraphQuery {
       }
     }
     """
-    static let getWalletInfoQuery = """
+  static let getWalletInfoQuery = """
     query getWalletInfoQuery {
       Wallet {
         balance
@@ -92,7 +92,7 @@ class GraphQuery {
       }
     }
     """
-    static let transferATMQuery = """
+  static let transferATMQuery = """
     mutation transferATMQuery($payInput: OpenEWalletPaymentPayInput!) {
       OpenEWallet {
         Payment {
@@ -119,7 +119,7 @@ class GraphQuery {
       }
     }
     """
-    static let createSecurityCodeQuery = """
+  static let createSecurityCodeQuery = """
     mutation createSecurityCodeQuery($createCodeByPasswordInput: CreateSecurityCodeByPassword!) {
       Account {
         SecurityCode {
@@ -133,7 +133,7 @@ class GraphQuery {
       }
     }
     """
-    static let sendPayMEOTP = """
+  static let sendPayMEOTP = """
     mutation SendOTPCreateCodeByOTP($input: SendOTPCreateCodeByOTPInput!) {
       Account {
         SecurityCode {
@@ -145,7 +145,7 @@ class GraphQuery {
       }
     }
     """
-    static let verifyPayMEOTP = """
+  static let verifyPayMEOTP = """
     mutation SendOTPCreateCodeByOTP($input: CreateSecurityCodeByOTPInput!) {
       Account {
         SecurityCode {
@@ -159,7 +159,7 @@ class GraphQuery {
       }
     }
     """
-    static let transferByLinkedBankQuery = """
+  static let transferByLinkedBankQuery = """
     mutation transferByLinkedBankQuery($payInput: OpenEWalletPaymentPayInput!) {
       OpenEWallet {
         Payment {
@@ -188,7 +188,7 @@ class GraphQuery {
       }
     }
     """
-    static let readQRContentQuery = """
+  static let readQRContentQuery = """
     mutation DetectQR($detectInput: OpenEWalletPaymentDetectInput!) {
       OpenEWallet {
         Payment {
@@ -223,7 +223,7 @@ class GraphQuery {
       }
     }
     """
-    static let checkFlowLinkedBankQuery = """
+  static let checkFlowLinkedBankQuery = """
     mutation checkFlowLinkedBankQuery($payInput: OpenEWalletPaymentPayInput!) {
       OpenEWallet {
         Payment {
@@ -252,7 +252,7 @@ class GraphQuery {
       }
     }
     """
-    static let mutationAuthenCredit = """
+  static let mutationAuthenCredit = """
     mutation AuthCreditCardMutation($authCreditCardInput: CreditCardAuthInput) {
       CreditCardLink {
         AuthCreditCard(input: $authCreditCardInput) {
@@ -265,7 +265,7 @@ class GraphQuery {
       }
     }
     """
-    static let transferWalletQuery = """
+  static let transferWalletQuery = """
     mutation transferWalletQuery($payInput: OpenEWalletPaymentPayInput!) {
       OpenEWallet {
         Payment {
@@ -285,7 +285,7 @@ class GraphQuery {
       }
     }
     """
-    static let creditWallettQuery = """
+  static let creditWallettQuery = """
     mutation transferWalletQuery($payInput: OpenEWalletPaymentPayInput!) {
       OpenEWallet {
         Payment {
@@ -305,7 +305,7 @@ class GraphQuery {
       }
     }
     """
-    static let getTranferMethodsQuery = """
+  static let getTranferMethodsQuery = """
     mutation getTranferMethodsQuery($getPaymentMethodInput: PaymentMethodInput) {
       Utility {
         GetPaymentMethod(input: $getPaymentMethodInput) {
@@ -339,7 +339,7 @@ class GraphQuery {
       }
     }
     """
-    static let verifyKYCQuery = """
+  static let verifyKYCQuery = """
     mutation verifyKYCQuery($kycInput: KYCInput!) {
       Account {
         KYC(input: $kycInput) {
@@ -349,7 +349,7 @@ class GraphQuery {
       }
     }
     """
-    static let getBankNameQuery = """
+  static let getBankNameQuery = """
     mutation getBankNameQuery($getBankNameInput: AccountBankInfoInput) {
       Utility {
         GetBankName(input: $getBankNameInput) {
@@ -360,7 +360,7 @@ class GraphQuery {
       }
     }
     """
-    static let getBankListQuery = """
+  static let getBankListQuery = """
     query getBankListQuery {
       Setting {
         banks {
@@ -378,7 +378,7 @@ class GraphQuery {
       }
     }
     """
-    static let getVietQRBankListQuery = """
+  static let getVietQRBankListQuery = """
     mutation GetListVietQR {
       OpenEWallet {
         Payment {
@@ -390,7 +390,7 @@ class GraphQuery {
       }
     }
     """
-    static let createVietQRQuery = """
+  static let createVietQRQuery = """
     mutation Pay($payInput: OpenEWalletPaymentPayInput!) {
       OpenEWallet {
         Payment {
@@ -416,7 +416,7 @@ class GraphQuery {
       }
     }
     """
-    static let registerClientQuery = """
+  static let registerClientQuery = """
     mutation registerClientQuery($registerInput: ClientRegisterInput!) {
       Client {
         Register(input: $registerInput) {
@@ -426,7 +426,7 @@ class GraphQuery {
       }
     }
     """
-    static let initAccountQuery = """
+  static let initAccountQuery = """
     mutation initAccountQuery($initInput: CheckInitInput) {
       OpenEWallet {
         Init(input: $initInput) {
@@ -452,7 +452,7 @@ class GraphQuery {
       }
     }
     """
-    static let getWalletGraphQLQuery = """
+  static let getWalletGraphQLQuery = """
     query getWalletGraphQLQuery {
       Wallet {
         balance
@@ -463,7 +463,7 @@ class GraphQuery {
       }
     }
     """
-    static let getFeeGraphQLQuery: String = """
+  static let getFeeGraphQLQuery: String = """
     mutation GetFeeMutation($getFeeInput: GetFeeInput) {
       Utility {
         GetFee(input: $getFeeInput) {
@@ -479,7 +479,7 @@ class GraphQuery {
       }
     }
     """
-    static let creditPaymentSubscription = """
+  static let creditPaymentSubscription = """
     subscription CreditCardPaymentStatus {
       CreditCard {
         ... on PaymentStatusSubscription {
@@ -493,7 +493,7 @@ class GraphQuery {
       }
     }
     """
-    static let getTransactionInfo = """
+  static let getTransactionInfo = """
     mutation SucceededMutation($getTransactionInfoInput: GetTransactionInfoInput!) {
        OpenEWallet {
          Payment {
@@ -510,7 +510,7 @@ class GraphQuery {
        }
      }
     """
-    static let getListBankManual = """
+  static let getListBankManual = """
       mutation paymentBankTransfer($payInput: OpenEWalletPaymentPayInput!) {
               OpenEWallet {
                 Payment {
@@ -546,7 +546,7 @@ class GraphQuery {
               }
             }
     """
-    static let paymentBankTransfer = """
+  static let paymentBankTransfer = """
     mutation paymentBankTransfer($payInput: OpenEWalletPaymentPayInput!) {
       OpenEWallet {
         Payment {
@@ -581,7 +581,7 @@ class GraphQuery {
       }
     }
     """
-    static let transferCreditCardQuery = """
+  static let transferCreditCardQuery = """
     mutation transferATMQuery($payInput: OpenEWalletPaymentPayInput!) {
       OpenEWallet {
         Payment {
@@ -609,7 +609,7 @@ class GraphQuery {
       }
     }
     """
-    static let getMerchantInformation = """
+  static let getMerchantInformation = """
     mutation getMerchantInformation($infoInput: OpenEWalletGetInfoMerchantInput!) {
       OpenEWallet {
         GetInfoMerchant(input: $infoInput) {
@@ -625,7 +625,7 @@ class GraphQuery {
       }
     }
     """
-    static let paymentVNPayQRCode = """
+  static let paymentVNPayQRCode = """
     mutation paymentVNPayQRCode($payInput: OpenEWalletPaymentPayInput!) {
       OpenEWallet {
         Payment {

@@ -10,7 +10,7 @@ import Foundation
 class VietQRInformation {
   var qrContent: String
   var manualInfo: PayMEQRTransfer?
-//  var banks: [String]?
+  //  var banks: [String]?
   init(qrContent: String, manualInfo: PayMEQRTransfer? = nil) {
     self.qrContent = qrContent
     self.manualInfo = manualInfo
@@ -24,8 +24,11 @@ class PayMEQRTransfer {
   var accountName: String
   var branchName: String
   var content: String
-  
-  init(bankName: String, shortBankName: String, bankNumber: String, accountName: String, branchName: String, content: String) {
+
+  init(
+    bankName: String, shortBankName: String, bankNumber: String, accountName: String,
+    branchName: String, content: String
+  ) {
     self.bankName = bankName
     self.shortBankName = shortBankName
     self.bankNumber = bankNumber

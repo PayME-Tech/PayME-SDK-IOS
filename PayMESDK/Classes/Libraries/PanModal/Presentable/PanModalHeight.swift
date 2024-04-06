@@ -6,13 +6,11 @@
 //
 
 #if os(iOS)
-import UIKit
+  import UIKit
 
-/**
- An enum that defines the possible states of the height of a pan modal container view
- for a given presentation state (shortForm, longForm)
- */
-public enum PanModalHeight: Equatable {
+  /// An enum that defines the possible states of the height of a pan modal container view
+  /// for a given presentation state (shortForm, longForm)
+  public enum PanModalHeight: Equatable {
 
     /**
      Sets the height to be the maximum height (+ topOffset)
@@ -40,6 +38,5 @@ public enum PanModalHeight: Equatable {
      Sets the height to be the intrinsic content height
      */
     case intrinsicHeight
-}
+  }
 #endif
-
