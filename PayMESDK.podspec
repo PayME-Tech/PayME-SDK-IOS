@@ -31,8 +31,8 @@ Pod::Spec.new do |s|
   s.author           = { 'HuyOpen' => 'huytq@payme.vn' }
   s.source           = { :git => 'https://github.com/PayME-Tech/PayME-SDK-IOS.git', :tag => s.version.to_s }
 
-  # s.ios.deployment_target = '12.0'
-  s.platform     = :ios, "12.0"
+  s.ios.deployment_target = '11.0'
+  s.platform     = :ios, "11.0"
   s.source_files = 'PayMESDK/Classes/**/*'
 
   s.resource_bundles = {
