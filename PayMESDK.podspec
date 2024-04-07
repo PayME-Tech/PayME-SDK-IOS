@@ -31,18 +31,17 @@ Pod::Spec.new do |s|
   s.author           = { 'HuyOpen' => 'huytq@payme.vn' }
   s.source           = { :git => 'https://github.com/PayME-Tech/PayME-SDK-IOS.git', :tag => s.version.to_s }
 
-  s.ios.deployment_target = '11.0'
-  s.platform     = :ios, "11.0"
+  # s.ios.deployment_target = '11.0'
+  s.platform     = :ios, "12.0"
   s.source_files = 'PayMESDK/Classes/**/*'
 
   s.resource_bundles = {
         'PayMESDK' => ['PayMESDK/Resource/*.png','PayMESDK/Resource/*.json', 'PayMESDK/Resource/*.svg', 'PayMESDK/Resource/*.lproj']
   }
-
   s.pod_target_xcconfig = {
-      'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
-    }
-    s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
+    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
+  }
+  s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
 
   s.frameworks = 'UIKit', 'WebKit', 'Foundation', 'Security'
   s.dependency 'CryptoSwift'
@@ -53,6 +52,6 @@ Pod::Spec.new do |s|
   s.dependency 'RxCocoa'
   s.dependency 'SVGKit'
   s.dependency 'SwiftyJSON'
-  s.dependency 'Toast-Swift', '~> 5.0.1'
+  s.dependency 'Toast-Swift'
   s.dependency 'PayCardsRecognizer'
 end
