@@ -61,7 +61,7 @@ extension UITextField {
     let currentWindow: UIWindow? = UIApplication.shared.keyWindow
     let spinnerView = UIView.init(frame: currentWindow!.bounds)
     spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
-    let ai = UIActivityIndicatorView.init(style: .large)
+    let ai = UIActivityIndicatorView.init(style: .whiteLarge)
     ai.startAnimating()
     ai.center = spinnerView.center
     DispatchQueue.main.async {
@@ -125,7 +125,7 @@ extension UIViewController {
     let currentWindow: UIWindow? = UIApplication.shared.keyWindow
     let spinnerView = UIView.init(frame: currentWindow!.bounds)
     spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: alpha)
-    let ai = UIActivityIndicatorView.init(style: .large)
+    let ai = UIActivityIndicatorView.init(style: .whiteLarge)
     if color != nil {
       ai.color = color
     }
@@ -284,7 +284,7 @@ extension UIView {
 
   func startLoading() {
     let activityIndicator: UIActivityIndicatorView = {
-      let indicator = UIActivityIndicatorView(style: .medium)
+      let indicator = UIActivityIndicatorView(style: .white)
       indicator.color = UIColor(hexString: PayME.configColor[0])
       indicator.translatesAutoresizingMaskIntoConstraints = false
       indicator.backgroundColor = .white

@@ -59,7 +59,7 @@ class PaymentModalController: UINavigationController, PanModalPresentable, UITab
   static var isShowCloseModal: Bool = true
   let methodsView = UIView()
   let placeholderView = UIView()
-  let activityIndicator = UIActivityIndicatorView(style: .medium)
+  let activityIndicator = UIActivityIndicatorView(style: .white)
 
   let payMEFunction: PayMEFunction
   var orderTransaction: OrderTransaction

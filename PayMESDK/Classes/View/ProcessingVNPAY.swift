@@ -60,7 +60,7 @@ class ProcessingVNPAY: UIView {
   }()
 
   let activityIndicator: UIActivityIndicatorView = {
-    let activityIndicator = UIActivityIndicatorView(style: .medium)
+    let activityIndicator = UIActivityIndicatorView(style: .white)
     activityIndicator.color = UIColor(hexString: PayME.configColor[0])
     activityIndicator.startAnimating()
     return activityIndicator
