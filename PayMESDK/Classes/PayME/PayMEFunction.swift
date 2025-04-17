@@ -382,41 +382,44 @@ class PayMEFunction {
   ) {
     if checkPayCondition(onError) {
       let qrScan = QRScannerController()
-      qrScan.setScanSuccess(onScanSuccess: { response in
-        if self.loggedIn == false || self.dataInit == nil {
-          onError([
-            "code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject,
-            "message": "needLogin".localize() as AnyObject,
-          ])
-          return
-        }
-        self.request.readQRContent(
-          qrContent: response,
-          onSuccess: { response in
+        qrScan.setScanSuccess(onScanSuccess: {
+            response in
+            if self.loggedIn == false || self.dataInit == nil {
+                onError([
+                    "code": PayME.ResponseCode.ACCOUNT_NOT_LOGIN as AnyObject,
+                    "message": "needLogin".localize() as AnyObject,
+                ])
+                return
+            }
+            self.request.readQRContent(
+                qrContent: response,
+                onSuccess: {
+                    response in
             let payment = response["OpenEWallet"]!["Payment"] as! [String: AnyObject]
             let detect = payment["DetectV2"] as! [String: AnyObject]
             let succeeded = detect["succeeded"] as! Bool
             _ = detect["message"] as? String ?? "hasError".localize()
-            let qrInfo = detect["qrInfo"] as! [String: AnyObject]
-
-            let typename = qrInfo["__typename"] as! String
-
-            guard let amountString = qrInfo["amount"] as? String else {
-              return
-            }
-            let amount = Int(amountString) ?? 0
-
-            let onSuccessPay =
-              isStartDirectFromUser
-              ? { _ in
-              } : onSuccess
-            let onErrorPay =
-              isStartDirectFromUser
-              ? { _ in
-              } : onError
-            let currentViewController = currentVC
 
             if succeeded == true {
+                let qrInfo = detect["qrInfo"] as! [String: AnyObject]
+
+                let typename = qrInfo["__typename"] as! String
+
+                guard let amountString = qrInfo["amount"] as? String else {
+                  return
+                }
+                let amount = Int(amountString) ?? 0
+
+                let onSuccessPay =
+                  isStartDirectFromUser
+                  ? { _ in
+                  } : onSuccess
+                let onErrorPay =
+                  isStartDirectFromUser
+                  ? { _ in
+                  } : onError
+                let currentViewController = currentVC
+
               if typename == "DefaultQR" {
                 let storeId = (qrInfo["storeId"] as? Int) ?? 0
                 let orderId = (qrInfo["orderId"] as? String) ?? ""
