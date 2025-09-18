@@ -17,9 +17,9 @@ class API {
     return sessionManger
   }()
   private static var isRoot: Bool {
-    guard TARGET_IPHONE_SIMULATOR != 1 else {
-      return false
-    }
+    #if targetEnvironment(simulator)
+    return false
+    #else
     if FileManager.default.fileExists(atPath: "/Applications/Cydia.app")
       || FileManager.default.fileExists(atPath: "/Library/MobileSubstrate/MobileSubstrate.dylib")
       || FileManager.default.fileExists(atPath: "/bin/bash")
@@ -39,6 +39,7 @@ class API {
     } catch {
       return false
     }
+    #endif
   }
   private static var isEmulator: Bool {
     #if targetEnvironment(simulator)
